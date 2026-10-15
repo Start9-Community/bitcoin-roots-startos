@@ -1,18 +1,21 @@
 <p align="center">
-  <img src="icon.svg" alt="Bitcoin Knots Logo" width="21%">
+  <img src="icon.svg" alt="Bitcoin Roots Logo" width="21%">
 </p>
 
-# Bitcoin Knots (pre-RDTS) on StartOS
+# Bitcoin Roots on StartOS
 
 > Everything not listed in this document should behave the same as upstream
-> Bitcoin Knots. If a feature, setting, or behavior is not mentioned here, the
+> Bitcoin Roots. If a feature, setting, or behavior is not mentioned here, the
 > upstream documentation is accurate and fully applicable — see the
 > Documentation section of `instructions.md` for links.
 
-[Bitcoin Knots](https://github.com/bitcoinknots/bitcoin) is a derivative of Bitcoin Core with a larger set of policy controls and a built-in wallet surface. This flavor follows the same chain as Bitcoin Core: it is Knots without the BIP-110 (RDTS) softfork. Like the other bitcoind flavors it runs with an embedded I2P router beside it and, when pruned, a block-fetching RPC proxy in front.
+[Bitcoin Roots](https://github.com/LuganoPlanB/bitcoin-roots) is Bitcoin Core with a selection of Bitcoin Knots' conservative relay and mempool policy carried onto it, maintained by the Plan ₿ Foundation. This flavor follows the same chain as Bitcoin Core: policy here is local and configurable, never consensus, and the build **does not enforce RDTS/BIP-110** — it defines no `consensusrules` option at all. Like the other bitcoind flavors it runs with an embedded I2P router beside it and, when pruned, a block-fetching RPC proxy in front.
 
-- **Upstream repo:** <https://github.com/bitcoinknots/bitcoin>
-- **Wrapper repo:** <https://github.com/Start9-Community/bitcoin-knots-prerdts-startos>
+This package is derived from the Bitcoin Knots (pre-RDTS) StartOS package; the two share a config model because the Roots binary accepts the same policy options (76 of the 78 modelled keys are present in both — see [Limitations and Differences](#limitations-and-differences)).
+
+- **Upstream repo:** <https://github.com/LuganoPlanB/bitcoin-roots>
+- **Upstream release:** `v29.4-roots.4` (Bitcoin Core 29.4 base)
+- **Wrapper repo:** <https://github.com/Start9-Community/bitcoin-roots-startos>
 
 ---
 
@@ -28,6 +31,7 @@
 - [Tasks](#tasks)
 - [Health Checks](#health-checks)
 - [Backups and Restore](#backups-and-restore)
+- [Chain-Split Recovery](#chain-split-recovery)
 - [Limitations and Differences](#limitations-and-differences)
 - [Quick Reference for AI Consumers](#quick-reference-for-ai-consumers)
 
@@ -35,15 +39,17 @@
 
 ## Image and Container Runtime
 
-The node binary does not come from a registry. The repo's own `Dockerfile` downloads the upstream release tarball from `bitcoinknots.org`, verifies it, and copies `bitcoind` and `bitcoin-cli` onto a slim Debian base. Three registry images run alongside it.
+The node binary does not come from a registry. The repo's own `Dockerfile` downloads the upstream release tarball from the project's **GitHub releases** (the tag is `v${VERSION}`; the tarball filenames carry no version, so the tag is the only thing that selects a release), verifies it, and copies `bitcoind` and `bitcoin-cli` onto a slim Debian base. Three registry images run alongside it.
 
 | Property      | Value                                                                       |
 | ------------- | --------------------------------------------------------------------------- |
 | Image         | Built from `Dockerfile` — upstream release binaries on `debian:stable-slim` |
-| Architectures | x86_64, aarch64, riscv64                                                    |
+| Architectures | x86_64, aarch64 — **no riscv64**: upstream publishes no such build          |
 | Entrypoint    | `bitcoind`                                                                  |
 
-Verification is a signer quorum rather than a single trusted key: `SHA256SUMS.asc` must carry good signatures from a quorum of **distinct** signers holding keys committed under `assets/release-keys/`, counted by primary fingerprint so that one signer's subkeys cannot vote twice, and the keyring is asserted equal to the pinned set so a stray key cannot join the count. Only then is the tarball checked against `SHA256SUMS`. The runtime image adds `curl` (the snapshot download shells out to it), `jq`, `yq`, `tini`, and `e2fsprogs`.
+Verification machinery is the same distinct-signer quorum the Core and Knots flavors use — `SHA512SUMS.asc` must carry good signatures from a quorum of **distinct** signers holding keys committed under `assets/release-keys/`, counted by primary fingerprint so one signer's subkeys cannot vote twice, with the keyring asserted equal to the pinned set so a stray key cannot join the count — but **the quorum here is 1-of-1**, because upstream signs each release with a single key (`5EADD53F2CD1F0B7AEEE920D25FC5C29CD528E32`, uid `Plan-B`). There is no tolerance for a compromised signer, unlike Core's 5-of-7 or Knots' 3-of-5.
+
+Read the trust basis before relying on it: upstream publishes that key **only as a comment block inside the `SHA512SUMS` file it signs**. It is not on keys.openpgp.org, not in the upstream repo's `SECURITY.md` or `doc/release-process.md`, and not in a builder-keys file. The committed copy was taken from the `v29.4-roots.4` manifest and confirmed to be the same key that signed every Roots release back to the project's first, so verification proves **continuity** — this release came from whoever signed the earlier ones — and not that that party is the Plan ₿ Foundation. A fingerprint change is a decision for a human, not a build fix. Only after the signature check is the tarball checked against `SHA512SUMS`. The runtime image adds `ca-certificates`, `curl` (the snapshot download shells out to it), `jq`, `yq`, and `e2fsprogs`.
 
 | Subcontainer   | Image                   | Lifetime                 | Purpose                                                                                                                                                                                                                                    |
 | -------------- | ----------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -52,9 +58,9 @@ Verification is a signer quorum rather than a single trusted key: `SHA256SUMS.as
 | `proxy-sub`    | `btc-rpc-proxy`         | while the node is pruned | Serves RPC on 8332 and fetches pruned blocks over p2p                                                                                                                                                                                      |
 | _temporaries_  | built locally, `python` | seconds to hours         | One per action that shells out — `assumeutxo`, `delete-peers`, `delete-txindex`, `delete-coinstats`, `getnetworkinfo`, `getblockchaininfo`, every Wallet-group action, and `rpc-auth-generator` (the `python` image, running `rpcauth.py`) |
 
-Two oneshots bracket the daemons. `nocow` sets the btrfs no-COW attribute across the data directory and must finish before `bitcoind` starts. `synced-true` runs after it, and is described under [Installation and First-Run Flow](#installation-and-first-run-flow).
+Three oneshots run around the daemons. `nocow` sets the btrfs no-COW attribute across the data directory and must finish before `bitcoind` starts. `synced-true` runs after it, and is described under [Installation and First-Run Flow](#installation-and-first-run-flow). `chain-recovery` is this flavor's own, described under [Chain-Split Recovery](#chain-split-recovery).
 
-The i2pd image has no riscv64 build and is declared `emulateMissing: true`, so on riscv64 hardware the I2P router runs emulated.
+The i2pd image is declared `emulateMissing: true`, inherited from the sibling flavors. Since this package builds for x86_64 and aarch64 only — both of which i2pd publishes — nothing is emulated in practice.
 
 ## Volume and Data Layout
 
@@ -83,9 +89,9 @@ Three models, and ownership is decided per key rather than per file: some keys a
 
 **Enforced** — rewritten to a fixed value whenever the package writes the file: `rpcbind`, `rpcallowip`, `rpccookiefile`, `listen`, `whitebind`, and `deprecatedrpc`. The first two are derived from whether the node is pruned; the rest are constants. `rpcuser` and `rpcpassword` are modelled as "must be absent", so a value on disk is discarded on the next write rather than honoured. Unlike Bitcoin Core, `mempoolfullrbf` **is** configurable here.
 
-**Knots exposes far more policy than Core does**, and this package models all of it: parasite and token rejection, bare pubkey, anchor and datacarrier permissions, script and legacy-sigop limits, datacarrier cost, ancestor and descendant limits, dust relay fee, ephemeral and unknown-witness handling, mempool replacement and TRUC policy, coin-age and maturity relay floors, and block template sizing. Each is a plain configurable key with Knots' own default when unset.
+**Roots exposes far more policy than Core does**, inherited from the Knots lineage, and this package models all of it: parasite and token rejection, bare pubkey, anchor and datacarrier permissions, script and legacy-sigop limits, datacarrier cost, ancestor and descendant limits, dust relay fee, ephemeral and unknown-witness handling, mempool replacement and TRUC policy, coin-age and maturity relay floors, and block template sizing. Each is a plain configurable key with Roots' own default when unset. Those defaults are Roots', not Knots': `datacarriersize=83`, `datacarriercost=1`, `maxscriptsize=1650`, `permitbaremultisig=0`, `permitbarepubkey=0`, `rejectparasites=1`, `mempoolreplacement=fee,-optin`.
 
-`consensusrules` is modelled but not exposed: this build never enforces RDTS, so the key is modelled as **must be absent** — a value on disk is discarded on the next write rather than honoured.
+Two keys are modelled as **must be absent** — a value on disk is discarded on the next write rather than honoured — because the Roots binary does not define them: `consensusrules` (Knots' RDTS consent flag; Roots never enforces RDTS, so there is no consent to record) and `softwareexpiry` (Knots' built-in shutdown deadline). Verified against `v29.4-roots.4`: the binary logs `Ignoring unknown configuration value <name>` and **starts normally** for each, so a value inherited from a Knots install cannot break a switch — it would merely sit in the file reading as though it were in force.
 
 **Seeded at install and then yours.** Install overrides these and nothing else:
 
@@ -164,7 +170,9 @@ There is no setup wizard, no credential to enter, and no task raised at install 
 5. **Every start** runs `nocow` and `clean-chainstate-old` before bitcoind.
 6. **When sync completes**, `synced-true` posts a Sync Complete notification and clears the two cache settings. It fires once per data directory; a reindex resets the flag, so it fires again when that finishes.
 
-A switch from Bitcoin Core 28.x–31.x, or from **Bitcoin Knots (Legacy)** — the StartOS 0.3.5.1 Knots as the 0.4.0 update carries it over — keeps the data directory and runs as an update. Coming from Core, the mempool policy keys are reset so Knots' defaults apply; coming from Legacy, the config is kept as written. Bitcoin Knots (RDTS) is refused: it follows a different chain.
+A switch from **Bitcoin Core 28.x–31.x**, from **Bitcoin Knots (pre-RDTS)**, or from **Bitcoin Knots** (the RDTS-enforcing build) keeps the data directory and runs as an update — same package id, same `main` volume, so the chain data and every dependent survive it. The mempool policy keys are reset on every one of those edges so Roots' own defaults apply rather than the previous flavor's values; coming down from Core 30 the moved `coinstatsindex` is removed, and from Core 31 the `fee_estimates.dat` written under the v31 format is removed too (a 29-based binary hard-fails on it).
+
+Switching in from the RDTS-enforcing Knots additionally queues **chain-split recovery**, described under [Chain-Split Recovery](#chain-split-recovery). Coming from Bitcoin Core or pre-RDTS Knots there is nothing to recover and the pass is a no-op.
 
 ## Actions
 
@@ -218,7 +226,7 @@ A read-only snapshot for diagnosis: peer counts split inbound and outbound, bloc
 
 ### Wallet — Select Wallet, Get Balance, Get Address, Send Coins, Send All Coins, Sign Message, Backup wallet, Restore wallet, Remove wallet
 
-Knots' built-in wallet, surfaced as actions. All nine are grouped under **Wallet**, all are **only available while the service is running**, and **all nine disappear entirely when `disablewallet` is on** — so a node configured without a wallet shows none of them.
+Roots' built-in wallet, surfaced as actions. All nine are grouped under **Wallet**, all are **only available while the service is running**, and **all nine disappear entirely when `disablewallet` is on** — so a node configured without a wallet shows none of them.
 
 - **Select Wallet** decides which wallet every other action in the group operates on, and its description names the current selection. The default is the historical hardcoded wallet name, so an existing install is unchanged.
 - **Get Balance** and **Get Address** read; Get Balance lists the trusted, untrusted-pending and immature balances as separate copyable fields, and Get Address returns a new segwit address each time, copyable and as a QR code.
@@ -247,7 +255,30 @@ One task, and it exists only to report a failure that happens after the action t
 
 `important` rather than `critical`, deliberately: a node without a snapshot syncs normally, so nothing should be blocked. The task can return — a second failed attempt raises it again with the new error.
 
-**There is no RDTS opt-in task here.** That belongs to the RDTS flavor, which follows a different chain; this one does not.
+**There is no RDTS opt-in task here.** Roots never enforces RDTS and has no option to; that task belongs to the RDTS-enforcing Knots flavor.
+
+## Chain-Split Recovery
+
+This section has no counterpart in the Bitcoin Core package. It exists because all bitcoind flavors share one data volume, and Roots is a flavor that never enforces RDTS.
+
+A flavor switch carries the previous binary's **persisted per-block validity verdicts** (`CBlockIndex::nStatus`, in `blocks/index/`) into the new one. bitcoind trusts them verbatim at startup — it never re-validates buried blocks under the new binary's rules, and the stored verdict does not record which rules produced it. So a `BLOCK_FAILED_VALID` mark that an RDTS-enforcing Knots build wrote would survive into Roots, which knows nothing about RDTS, cannot recognise the mark as foreign, and would therefore refuse the most-work chain it is supposed to follow. Clearing those marks is what the `chain-recovery` oneshot does.
+
+| Piece                                    | Role                                                                                                                       |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `startos/forkRecovery.ts`                | `reconsiderInvalidTips` — `reconsiderblock` on each invalid chain tip, re-fetching tips every iteration                     |
+| `store.json` → `reconsiderInvalidTips`   | The durable "work queued" flag, set by the `^#knots:29.3` migration edge and cleared when the pass completes                |
+| `store.json` → `rdtsEnforcedLastRun`     | Records the enforcement regime of the binary that last advanced this datadir. Roots always writes `false`                   |
+| `chain-recovery` oneshot (`main.ts`)     | Runs once per start as soon as RPC answers, `requires: ['bitcoind']`. Nothing depends on it, so it never blocks the service |
+
+Three properties worth knowing:
+
+- **It is a no-op when there is nothing to fix.** `getchaintips` reporting no invalid tip ends the pass immediately, so it costs one RPC call on an ordinary start.
+- **It self-heals.** `reconsiderblock` clears the failure flags and lets `ActivateBestChain` re-connect through full `ConnectBlock` validation; a branch that really is invalid under Roots' rules is simply re-marked on reconnection, and the node settles on the best remaining valid chain.
+- **An `undefined` `rdtsEnforcedLastRun` is treated as "may have enforced"** — a datadir last advanced by a package version predating the marker gets the pass rather than being assumed clean. The flag is written before the marker, so a crash between the two re-detects the transition instead of losing it.
+
+**Pruned nodes have a limit.** Reorganising onto a reconsidered branch means disconnecting the active chain down to the fork point; a pruned node that no longer stores blocks that far back would hit a fatal mid-reorg failure, so those tips are skipped and reported in a `Some Chains Not Recoverable` warning notification rather than attempted. Recovery for them is Reindex Blockchain, which on a pruned node means re-downloading. One hazard the guard cannot close: when a reconsidered branch's blocks must still be fetched from peers, the reorg happens later, and pruning may advance past the fork point in the interim.
+
+The oneshot posts a notification for each outcome — `Chain Verdicts Reset` (info, with the tip count), `Some Chains Not Recoverable` (warning), `Chain Recovery Failed` (error, retried next start). A stop mid-reorg leaves the flag set and is logged rather than reported as a failure.
 
 ## Health Checks
 
@@ -300,10 +331,12 @@ Both volumes are copied wholesale — `sdk.Backups.ofVolumes('main', 'i2pd')`. T
 6. **CJDNS is unavailable.** StartOS provides no CJDNS transport, so it is not offered as an `onlynet` option — though one hand-written into `bitcoin.conf` is preserved rather than dropped. Clearnet, Tor, and I2P are all fully supported.
 7. **i2pd tuning is not in the StartOS UI.** Log level, bandwidth class, transit share, tunnel limits, and the web console are edited in `i2pd.conf` on the `i2pd` volume. The embedded router relays nothing for the I2P network (`notransit=true`); run the standalone i2pd service if you want to contribute transit capacity.
 8. **Shutdown is allowed five minutes** to flush the databases before SIGKILL.
-9. **The I2P router is emulated on riscv64**, which has no upstream i2pd image.
-10. **This flavor never enforces RDTS.** It follows the same chain as Bitcoin Core; the RDTS flavor is a separate package and a separate chain.
-11. **Every Wallet action disappears when `disablewallet` is on**, and all of them require the service to be running.
-12. **The repo maintains one branch per flavor**, each published as the same `bitcoind` package. Release notes and pinned upstream versions differ between them.
+9. **There is no riscv64 build.** Upstream publishes Linux x86_64 and aarch64 tarballs only, so the manifest declares those two and the `Makefile` pins `ARCHES` to match. The Core and Knots flavors do build for riscv64; a Start9 server on that architecture cannot switch to this one.
+10. **This flavor never enforces RDTS**, and cannot be made to: the binary defines no `consensusrules` option. It follows the same chain as Bitcoin Core. See [Chain-Split Recovery](#chain-split-recovery) for what that means when switching in from the enforcing Knots build.
+11. **`softwareexpiry` is not supported.** Knots' shutdown deadline does not exist in Roots; an inherited value is deleted from `bitcoin.conf` on the next write.
+12. **The release is signed by one key, not a quorum.** See [Image and Container Runtime](#image-and-container-runtime) — the 1-of-1 quorum and the key's in-band-only publication are upstream's release model, and are the weakest link in this package's supply chain.
+13. **Every Wallet action disappears when `disablewallet` is on**, and all of them require the service to be running.
+14. **Sibling flavors are separate repos**, each published as the same `bitcoind` package. Release notes and pinned upstream versions differ between them.
 
 ---
 
@@ -315,7 +348,6 @@ image: ./Dockerfile # upstream release binaries on debian:stable-slim
 architectures:
   - x86_64
   - aarch64
-  - riscv64
 subcontainers:
   - bitcoind-sub # the bitcoind daemon; the one to attach to
   - i2pd-sub # purplei2p/i2pd; only while I2P is enabled

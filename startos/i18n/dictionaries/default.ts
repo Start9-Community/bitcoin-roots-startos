@@ -90,13 +90,13 @@ const dict = {
   // actions/deleteTxIndex.ts
   'Delete Transaction Index': 800,
   'Deletes the Transaction Index (txindex) in the event it gets corrupted.': 801,
-  "The Transaction Index will be rebuilt once Bitcoin Knots is started again, unless 'Coinstats Index' is disabled in the config settings. Please don't do this unless you fully understand what you are doing.": 802,
+  "The Transaction Index will be rebuilt once Bitcoin Roots is started again, unless 'Coinstats Index' is disabled in the config settings. Please don't do this unless you fully understand what you are doing.": 802,
   'Successfully deleted txindex': 803,
 
   // actions/deleteCoinstatsIndex.ts
   'Delete Coinstats Index': 900,
   'Deletes the Coinstats Index (coinstatsindex) in case it gets corrupted.': 901,
-  "The Coinstats Index will be rebuilt once Bitcoin Knots is started again, unless 'Transaction Index' is disabled in the config settings. Please don't do this unless you fully understand what you are doing.": 902,
+  "The Coinstats Index will be rebuilt once Bitcoin Roots is started again, unless 'Transaction Index' is disabled in the config settings. Please don't do this unless you fully understand what you are doing.": 902,
   'Successfully deleted coinstats index': 903,
 
   // actions/assumeutxo.ts
@@ -162,7 +162,7 @@ const dict = {
   '- Enabled: Bitcoin also reaches peers over I2P, through the I2P router this service runs.\n- Disabled: no I2P connections, and i2p is dropped from Onlynet.': 1201,
   'Accept Incoming I2P Connections': 1204,
   'Let other I2P nodes connect to yours, which helps the network. Off, your node only makes outbound I2P connections.': 1205,
-  // Knots peers additions
+  // Peer settings from the Knots lineage (not in Bitcoin Core)
   'Disable I2P': 1232,
   'Embedded I2P Daemon (i2pd)': 1233,
   'Custom I2P SAM Address': 1234,
@@ -208,7 +208,7 @@ const dict = {
   bytes: 1513,
   'Mempool Settings': 1514,
   'Edit the Mempool settings in bitcoin.conf': 1515,
-  // Knots mempool additions
+  // Mempool policy from the Knots lineage (not in Bitcoin Core)
   'Enable Full RBF': 1516,
   'Policy for your node to use for relaying and mining unconfirmed transactions.': 1517,
   'Permit Bare Datacarrier': 1518,
@@ -218,9 +218,9 @@ const dict = {
   'Reject Tokens': 1522,
   'Reject tokens transactions (runes)': 1523,
   'Mempool Replacement': 1524,
-  "Which unconfirmed transactions a higher-fee transaction may replace.\n- Default: Bitcoin Knots' own default, shown below.\n- Disabled: no replacement at all.\n- fee,optin: only transactions that signal they can be replaced.\n- fee,-optin: any transaction (full RBF).": 1525,
+  "Which unconfirmed transactions a higher-fee transaction may replace.\n- Default: Bitcoin Roots' own default, shown below.\n- Disabled: no replacement at all.\n- fee,optin: only transactions that signal they can be replaced.\n- fee,-optin: any transaction (full RBF).": 1525,
   'Mempool TRUC': 1526,
-  "How to treat transactions that request TRUC limits.\n- Default: Bitcoin Knots' own default, shown below.\n- Reject: refuse them entirely.\n- Accept: relay them like any other transaction.\n- Enforce: apply the restrictions they request.": 1527,
+  "How to treat transactions that request TRUC limits.\n- Default: Bitcoin Roots' own default, shown below.\n- Reject: refuse them entirely.\n- Accept: relay them like any other transaction.\n- Enforce: apply the restrictions they request.": 1527,
   Reject: 1528,
   Accept: 1529,
   Enforce: 1530,
@@ -276,9 +276,9 @@ const dict = {
 
   // actions/config/other.ts
   'ZeroMQ Enabled': 1700,
-  'The ZeroMQ interface is useful for some applications which might require data related to block and transaction events from Bitcoin Knots. For example, LND requires ZeroMQ be enabled for LND to get the latest block data': 1701,
+  'The ZeroMQ interface is useful for some applications which might require data related to block and transaction events from Bitcoin Roots. For example, LND requires ZeroMQ be enabled for LND to get the latest block data': 1701,
   'Transaction Index': 1702,
-  'By enabling Transaction Index (txindex) Bitcoin Knots will build a complete transaction index. This allows Bitcoin Knots to access any transaction with commands like getrawtransaction.': 1703,
+  'By enabling Transaction Index (txindex) Bitcoin Roots will build a complete transaction index. This allows Bitcoin Roots to access any transaction with commands like getrawtransaction.': 1703,
   'Not enough disk space': 1704,
   'Block Notify': 1705,
   'A shell command Bitcoin runs inside its container each time the best block changes. %s in the command is replaced by the block hash.': 1706,
@@ -314,7 +314,7 @@ const dict = {
   'This is ONLY for use with Bisq integration, please use Block Filters for all other applications.': 1735,
   'Other Settings': 1739,
   'Edit more values in bitcoin.conf': 1740,
-  // Knots other additions
+  // Other settings from the Knots lineage (not in Bitcoin Core)
   'Software Expiry': 1741,
   'Stop working after this POSIX timestamp (set to 0 to disable)': 1742,
   timestamp: 1743,
@@ -398,7 +398,7 @@ const dict = {
 
   // actions/removewallet.ts
   'Remove wallet': 2700,
-  'Remove the wallet in Bitcoin Knots': 2701,
+  'Remove the wallet in Bitcoin Roots': 2701,
   '⚠️ Please be sure that your wallet is empty, or that you have a backup. Without a backup this will lead to a permanent loss of funds.': 2702,
   'Your wallet has been removed.': 2703,
   'Not removed': 2704,
@@ -446,6 +446,13 @@ const dict = {
   'Unconfirmed funds from others, waiting in the mempool.': 3114,
   Immature: 3115,
   'Mining rewards that cannot be spent yet.': 3116,
+  // forkRecovery.ts notifications (main.ts chain-recovery oneshot)
+  'Chain Verdicts Reset': 3117,
+  "Cleared invalid-block verdicts inherited from the previously installed bitcoind flavor on ${count} chain tip(s). The node now follows the best chain that is valid under this flavor's rules; reorganizing onto it may take a while and requires peers on that chain.": 3118,
+  'Some Chains Not Recoverable': 3119,
+  '${count} invalid chain branch(es) inherited from the previous bitcoind flavor could not be reconsidered: this pruned node no longer stores the blocks needed to reorganize onto them. If the node appears stuck on the wrong chain, run Reindex Blockchain (on a pruned node this re-downloads the chain).': 3120,
+  'Chain Recovery Failed': 3121,
+  'Clearing invalid-block verdicts inherited from the previous bitcoind flavor failed; it will be retried at the next restart. Error: ${error}': 3122,
 } as const
 
 /**

@@ -162,7 +162,6 @@ export const shape = z.looseObject({
   blockreconstructionextratxnsize: iniNumber,
 
   // Other
-  softwareexpiry: iniNumber,
   blocknotify: iniString,
   prune: z
     .union([
@@ -189,8 +188,18 @@ export const shape = z.looseObject({
     .catch(undefined),
   peerblockfilters: iniBoolean,
   natpmp: iniBoolean,
-  // Must-be-absent: this build logs "Ignoring unknown configuration value" for it on every start.
+  // Must-be-absent: Knots-only options that the Roots build does not define.
+  // It logs "Ignoring unknown configuration value" for each on every start and
+  // runs on regardless (verified against v29.4-roots.4), so an inherited value
+  // cannot break a switch — but it would sit in bitcoin.conf reading as though
+  // it were in force. Declaring them undefined makes the file model drop them
+  // on the first write.
+  //
+  // consensusrules: Knots' RDTS consent flag. Roots never enforces RDTS, so
+  // there is no consent to record. softwareexpiry: Knots' built-in shutdown
+  // deadline, which Roots does not implement at all.
   consensusrules: z.undefined().optional().catch(undefined),
+  softwareexpiry: z.undefined().optional().catch(undefined),
   maxuploadtarget: iniNumber,
 })
 
@@ -213,7 +222,7 @@ const { InputSpec, Value, Variants, List } = sdk
 export const diskUsage = utils.once(() => diskusage.check('/'))
 export const archivalMin = 900_000_000_000
 
-// Override defaults (diverging from upstream Bitcoin Knots)
+// Override defaults (diverging from upstream Bitcoin Roots)
 export const defaultDatacarriercost = 1
 
 export const defaultDbcache = () =>
@@ -306,7 +315,7 @@ export const fullConfigSpec = sdk.InputSpec.of({
   mempoolreplacement: Value.select({
     name: i18n('Mempool Replacement'),
     description: i18n(
-      "Which unconfirmed transactions a higher-fee transaction may replace.\n- Default: Bitcoin Knots' own default, shown below.\n- Disabled: no replacement at all.\n- fee,optin: only transactions that signal they can be replaced.\n- fee,-optin: any transaction (full RBF).",
+      "Which unconfirmed transactions a higher-fee transaction may replace.\n- Default: Bitcoin Roots' own default, shown below.\n- Disabled: no replacement at all.\n- fee,optin: only transactions that signal they can be replaced.\n- fee,-optin: any transaction (full RBF).",
     ),
     default: 'default',
     values: {
@@ -320,7 +329,7 @@ export const fullConfigSpec = sdk.InputSpec.of({
   mempooltruc: Value.select({
     name: i18n('Mempool TRUC'),
     description: i18n(
-      "How to treat transactions that request TRUC limits.\n- Default: Bitcoin Knots' own default, shown below.\n- Reject: refuse them entirely.\n- Accept: relay them like any other transaction.\n- Enforce: apply the restrictions they request.",
+      "How to treat transactions that request TRUC limits.\n- Default: Bitcoin Roots' own default, shown below.\n- Reject: refuse them entirely.\n- Accept: relay them like any other transaction.\n- Enforce: apply the restrictions they request.",
     ),
     default: 'default',
     values: {
@@ -517,20 +526,10 @@ export const fullConfigSpec = sdk.InputSpec.of({
   }),
 
   // === OTHER ===
-  softwareexpiry: Value.number({
-    name: i18n('Software Expiry'),
-    description: i18n(
-      'Stop working after this POSIX timestamp (set to 0 to disable)',
-    ),
-    default: 1825593420,
-    required: true,
-    integer: true,
-    units: i18n('timestamp'),
-  }),
   zmqEnabled: Value.triState({
     name: i18n('ZeroMQ Enabled'),
     description: i18n(
-      'The ZeroMQ interface is useful for some applications which might require data related to block and transaction events from Bitcoin Knots. For example, LND requires ZeroMQ be enabled for LND to get the latest block data',
+      'The ZeroMQ interface is useful for some applications which might require data related to block and transaction events from Bitcoin Roots. For example, LND requires ZeroMQ be enabled for LND to get the latest block data',
     ),
     default: true,
     footnote: `${i18n('Default')}: false`,
@@ -541,7 +540,7 @@ export const fullConfigSpec = sdk.InputSpec.of({
       name: i18n('Transaction Index'),
       default: null,
       description: i18n(
-        'By enabling Transaction Index (txindex) Bitcoin Knots will build a complete transaction index. This allows Bitcoin Knots to access any transaction with commands like getrawtransaction.',
+        'By enabling Transaction Index (txindex) Bitcoin Roots will build a complete transaction index. This allows Bitcoin Roots to access any transaction with commands like getrawtransaction.',
       ),
       footnote: `${i18n('Default')}: false`,
       disabled:
@@ -949,7 +948,6 @@ function fileToForm(
     zmqpubrawtx,
     zmqpubsequence,
     // Other
-    softwareexpiry,
     txindex,
     coinstatsindex,
     disablewallet,
@@ -1017,7 +1015,6 @@ function fileToForm(
     minrelaymaturity,
 
     // Other - with transforms
-    softwareexpiry,
     zmqEnabled: !!(
       zmqpubhashblock &&
       zmqpubhashtx &&
@@ -1121,7 +1118,6 @@ function formToFile(
     minrelaycoinblocks,
     minrelaymaturity,
     // Other
-    softwareexpiry,
     prune,
     wallet,
     txindex,
@@ -1223,7 +1219,6 @@ function formToFile(
     discardfee: wallet?.discardfee ?? undefined,
 
     // Other
-    softwareexpiry,
     txindex: prune ? false : (txindex ?? undefined),
     coinstatsindex: coinstatsindex ?? undefined,
     peerbloomfilters: peerbloomfilters ?? undefined,

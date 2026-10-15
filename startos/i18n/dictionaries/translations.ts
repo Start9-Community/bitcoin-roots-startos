@@ -91,13 +91,13 @@ export default {
     // actions/deleteTxIndex.ts
     800: 'Eliminar índice de transacciones',
     801: 'Elimina el índice de transacciones (txindex) en caso de que se corrompa.',
-    802: "El índice de transacciones se reconstruirá una vez que se inicie Bitcoin Knots nuevamente, a menos que 'Índice Coinstats' esté deshabilitado en la configuración. Por favor, no haga esto a menos que comprenda completamente lo que está haciendo.",
+    802: "El índice de transacciones se reconstruirá una vez que se inicie Bitcoin Roots nuevamente, a menos que 'Índice Coinstats' esté deshabilitado en la configuración. Por favor, no haga esto a menos que comprenda completamente lo que está haciendo.",
     803: 'txindex eliminado exitosamente',
 
     // actions/deleteCoinstatsIndex.ts
     900: 'Eliminar índice Coinstats',
     901: 'Elimina el índice Coinstats (coinstatsindex) en caso de que se corrompa.',
-    902: "El índice Coinstats se reconstruirá una vez que se inicie Bitcoin Knots nuevamente, a menos que 'Índice de transacciones' esté deshabilitado en la configuración. Por favor, no haga esto a menos que comprenda completamente lo que está haciendo.",
+    902: "El índice Coinstats se reconstruirá una vez que se inicie Bitcoin Roots nuevamente, a menos que 'Índice de transacciones' esté deshabilitado en la configuración. Por favor, no haga esto a menos que comprenda completamente lo que está haciendo.",
     903: 'Índice coinstats eliminado exitosamente',
 
     // actions/assumeutxo.ts
@@ -215,9 +215,9 @@ export default {
 
     // actions/config/other.ts
     1700: 'ZeroMQ habilitado',
-    1701: 'La interfaz ZeroMQ es útil para algunas aplicaciones que pueden requerir datos relacionados con eventos de bloques y transacciones de Bitcoin Knots. Por ejemplo, LND requiere que ZeroMQ esté habilitado para que LND obtenga los datos de bloque más recientes',
+    1701: 'La interfaz ZeroMQ es útil para algunas aplicaciones que pueden requerir datos relacionados con eventos de bloques y transacciones de Bitcoin Roots. Por ejemplo, LND requiere que ZeroMQ esté habilitado para que LND obtenga los datos de bloque más recientes',
     1702: 'Índice de transacciones',
-    1703: 'Al habilitar el índice de transacciones (txindex), Bitcoin Knots construirá un índice de transacciones completo. Esto permite que Bitcoin Knots acceda a cualquier transacción con comandos como getrawtransaction.',
+    1703: 'Al habilitar el índice de transacciones (txindex), Bitcoin Roots construirá un índice de transacciones completo. Esto permite que Bitcoin Roots acceda a cualquier transacción con comandos como getrawtransaction.',
     1704: 'No hay suficiente espacio en disco',
     1705: 'Notificación de bloque',
     1706: 'Un comando de shell que Bitcoin ejecuta dentro de su contenedor cada vez que cambia el mejor bloque. %s en el comando se sustituye por el hash del bloque.',
@@ -258,7 +258,7 @@ export default {
     1800: 'Configuración',
     1801: 'La billetera está desactivada.',
 
-    // Knots peers additions
+    // Peer settings from the Knots lineage (not in Bitcoin Core)
     1232: 'Disable I2P',
     1233: 'Embedded I2P Daemon (i2pd)',
     1234: 'Custom I2P SAM Address',
@@ -269,7 +269,7 @@ export default {
     1258: 'Allow other nodes to find your server on the network.',
     1259: 'IP Address and port of an external I2P daemon SAM bridge (e.g., 192.168.1.1:7656)',
     1260: 'A valid IP address and port number (e.g., 192.168.1.1:7656)',
-    // Knots mempool additions
+    // Mempool policy from the Knots lineage (not in Bitcoin Core)
     1516: 'Enable Full RBF',
     1517: 'Policy for your node to use for relaying and mining unconfirmed transactions.',
     1518: 'Permit Bare Datacarrier',
@@ -279,9 +279,9 @@ export default {
     1522: 'Reject Tokens',
     1523: 'Reject tokens transactions (runes)',
     1524: 'Mempool Replacement',
-    1525: 'Qué transacciones no confirmadas puede reemplazar una transacción con mayor comisión.\n- Por defecto: el valor predeterminado de Bitcoin Knots, indicado abajo.\n- Deshabilitado: ningún reemplazo.\n- fee,optin: solo las transacciones que indican que pueden ser reemplazadas.\n- fee,-optin: cualquier transacción (full RBF).',
+    1525: 'Qué transacciones no confirmadas puede reemplazar una transacción con mayor comisión.\n- Por defecto: el valor predeterminado de Bitcoin Roots, indicado abajo.\n- Deshabilitado: ningún reemplazo.\n- fee,optin: solo las transacciones que indican que pueden ser reemplazadas.\n- fee,-optin: cualquier transacción (full RBF).',
     1526: 'Mempool TRUC',
-    1527: 'Cómo tratar las transacciones que solicitan límites TRUC.\n- Por defecto: el valor predeterminado de Bitcoin Knots, indicado abajo.\n- Reject: rechazarlas por completo.\n- Accept: retransmitirlas como cualquier otra transacción.\n- Enforce: aplicar las restricciones que solicitan.',
+    1527: 'Cómo tratar las transacciones que solicitan límites TRUC.\n- Por defecto: el valor predeterminado de Bitcoin Roots, indicado abajo.\n- Reject: rechazarlas por completo.\n- Accept: retransmitirlas como cualquier otra transacción.\n- Enforce: aplicar las restricciones que solicitan.',
     1528: 'Reject',
     1529: 'Accept',
     1530: 'Enforce',
@@ -322,7 +322,7 @@ export default {
     1565: 'Min Relay Maturity',
     1566: 'Minimum number of blocks that inputs must mature before being spent in transactions we relay',
     1567: 'Blocks',
-    // Knots other additions
+    // Other settings from the Knots lineage (not in Bitcoin Core)
     1741: 'Software Expiry',
     1742: 'Stop working after this POSIX timestamp (set to 0 to disable)',
     1743: 'timestamp',
@@ -386,7 +386,7 @@ export default {
     2602: 'Your wallet has been restored',
     // actions/removewallet.ts
     2700: 'Remove wallet',
-    2701: 'Remove the wallet in Bitcoin Knots',
+    2701: 'Remove the wallet in Bitcoin Roots',
     2702: '⚠️ Please be sure that your wallet is empty, or that you have a backup. Without a backup this will lead to a permanent loss of funds.',
     2703: 'Your wallet has been removed.',
     // actions/config/autoconfig.ts
@@ -432,6 +432,12 @@ export default {
     3114: 'Fondos no confirmados de otros, en espera en el mempool.',
     3115: 'Inmaduro',
     3116: 'Recompensas de minería que aún no se pueden gastar.',
+    3117: 'Veredictos de cadena restablecidos',
+    3118: 'Se borraron los veredictos de bloques inválidos heredados de la variante de bitcoind instalada anteriormente en ${count} punta(s) de cadena. El nodo ahora sigue la mejor cadena válida bajo las reglas de esta variante; reorganizarse hacia ella puede tardar un tiempo y requiere pares en esa cadena.',
+    3119: 'Algunas cadenas no recuperables',
+    3120: '${count} rama(s) de cadena inválida(s) heredada(s) de la variante anterior de bitcoind no pudieron reconsiderarse: este nodo podado ya no almacena los bloques necesarios para reorganizarse hacia ellas. Si el nodo parece atascado en la cadena equivocada, ejecute Reindexar blockchain (en un nodo podado esto vuelve a descargar la cadena).',
+    3121: 'Recuperación de cadena fallida',
+    3122: 'El borrado de los veredictos de bloques inválidos heredados de la variante anterior de bitcoind falló; se reintentará en el próximo reinicio. Error: ${error}',
   } satisfies LangDict,
   de_DE: {
     // main.ts
@@ -523,13 +529,13 @@ export default {
     // actions/deleteTxIndex.ts
     800: 'Transaktionsindex löschen',
     801: 'Löscht den Transaktionsindex (txindex), falls er beschädigt wird.',
-    802: "Der Transaktionsindex wird neu erstellt, sobald Bitcoin Knots erneut gestartet wird, es sei denn, 'Coinstats-Index' ist in den Konfigurationseinstellungen deaktiviert. Bitte tun Sie dies nicht, es sei denn, Sie verstehen vollständig, was Sie tun.",
+    802: "Der Transaktionsindex wird neu erstellt, sobald Bitcoin Roots erneut gestartet wird, es sei denn, 'Coinstats-Index' ist in den Konfigurationseinstellungen deaktiviert. Bitte tun Sie dies nicht, es sei denn, Sie verstehen vollständig, was Sie tun.",
     803: 'txindex erfolgreich gelöscht',
 
     // actions/deleteCoinstatsIndex.ts
     900: 'Coinstats-Index löschen',
     901: 'Löscht den Coinstats-Index (coinstatsindex), falls er beschädigt wird.',
-    902: "Der Coinstats-Index wird neu erstellt, sobald Bitcoin Knots erneut gestartet wird, es sei denn, 'Transaktionsindex' ist in den Konfigurationseinstellungen deaktiviert. Bitte tun Sie dies nicht, es sei denn, Sie verstehen vollständig, was Sie tun.",
+    902: "Der Coinstats-Index wird neu erstellt, sobald Bitcoin Roots erneut gestartet wird, es sei denn, 'Transaktionsindex' ist in den Konfigurationseinstellungen deaktiviert. Bitte tun Sie dies nicht, es sei denn, Sie verstehen vollständig, was Sie tun.",
     903: 'Coinstats-Index erfolgreich gelöscht',
 
     // actions/assumeutxo.ts
@@ -647,9 +653,9 @@ export default {
 
     // actions/config/other.ts
     1700: 'ZeroMQ aktiviert',
-    1701: 'Die ZeroMQ-Schnittstelle ist nützlich für einige Anwendungen, die Daten zu Block- und Transaktionsereignissen von Bitcoin Knots benötigen könnten. Beispielsweise muss LND ZeroMQ aktiviert haben, damit LND die neuesten Blockdaten erhält',
+    1701: 'Die ZeroMQ-Schnittstelle ist nützlich für einige Anwendungen, die Daten zu Block- und Transaktionsereignissen von Bitcoin Roots benötigen könnten. Beispielsweise muss LND ZeroMQ aktiviert haben, damit LND die neuesten Blockdaten erhält',
     1702: 'Transaktionsindex',
-    1703: 'Durch Aktivieren des Transaktionsindex (txindex) erstellt Bitcoin Knots einen vollständigen Transaktionsindex. Dadurch kann Bitcoin Knots mit Befehlen wie getrawtransaction auf jede Transaktion zugreifen.',
+    1703: 'Durch Aktivieren des Transaktionsindex (txindex) erstellt Bitcoin Roots einen vollständigen Transaktionsindex. Dadurch kann Bitcoin Roots mit Befehlen wie getrawtransaction auf jede Transaktion zugreifen.',
     1704: 'Nicht genügend Speicherplatz',
     1705: 'Blockbenachrichtigung',
     1706: 'Ein Shell-Befehl, den Bitcoin in seinem Container ausführt, sobald sich der beste Block ändert. %s im Befehl wird durch den Block-Hash ersetzt.',
@@ -690,7 +696,7 @@ export default {
     1800: 'Konfiguration',
     1801: 'Wallet ist deaktiviert',
 
-    // Knots peers additions
+    // Peer settings from the Knots lineage (not in Bitcoin Core)
     1232: 'Disable I2P',
     1233: 'Embedded I2P Daemon (i2pd)',
     1234: 'Custom I2P SAM Address',
@@ -701,7 +707,7 @@ export default {
     1258: 'Allow other nodes to find your server on the network.',
     1259: 'IP Address and port of an external I2P daemon SAM bridge (e.g., 192.168.1.1:7656)',
     1260: 'A valid IP address and port number (e.g., 192.168.1.1:7656)',
-    // Knots mempool additions
+    // Mempool policy from the Knots lineage (not in Bitcoin Core)
     1516: 'Enable Full RBF',
     1517: 'Policy for your node to use for relaying and mining unconfirmed transactions.',
     1518: 'Permit Bare Datacarrier',
@@ -711,9 +717,9 @@ export default {
     1522: 'Reject Tokens',
     1523: 'Reject tokens transactions (runes)',
     1524: 'Mempool Replacement',
-    1525: 'Welche unbestätigten Transaktionen eine Transaktion mit höherer Gebühr ersetzen darf.\n- Standard: die Voreinstellung von Bitcoin Knots, unten angegeben.\n- Deaktiviert: überhaupt keine Ersetzung.\n- fee,optin: nur Transaktionen, die signalisieren, dass sie ersetzt werden können.\n- fee,-optin: jede Transaktion (Full RBF).',
+    1525: 'Welche unbestätigten Transaktionen eine Transaktion mit höherer Gebühr ersetzen darf.\n- Standard: die Voreinstellung von Bitcoin Roots, unten angegeben.\n- Deaktiviert: überhaupt keine Ersetzung.\n- fee,optin: nur Transaktionen, die signalisieren, dass sie ersetzt werden können.\n- fee,-optin: jede Transaktion (Full RBF).',
     1526: 'Mempool TRUC',
-    1527: 'Wie Transaktionen behandelt werden, die TRUC-Grenzen anfordern.\n- Standard: die Voreinstellung von Bitcoin Knots, unten angegeben.\n- Reject: sie vollständig zurückweisen.\n- Accept: sie wie jede andere Transaktion weiterleiten.\n- Enforce: die angeforderten Einschränkungen anwenden.',
+    1527: 'Wie Transaktionen behandelt werden, die TRUC-Grenzen anfordern.\n- Standard: die Voreinstellung von Bitcoin Roots, unten angegeben.\n- Reject: sie vollständig zurückweisen.\n- Accept: sie wie jede andere Transaktion weiterleiten.\n- Enforce: die angeforderten Einschränkungen anwenden.',
     1528: 'Reject',
     1529: 'Accept',
     1530: 'Enforce',
@@ -754,7 +760,7 @@ export default {
     1565: 'Min Relay Maturity',
     1566: 'Minimum number of blocks that inputs must mature before being spent in transactions we relay',
     1567: 'Blocks',
-    // Knots other additions
+    // Other settings from the Knots lineage (not in Bitcoin Core)
     1741: 'Software Expiry',
     1742: 'Stop working after this POSIX timestamp (set to 0 to disable)',
     1743: 'timestamp',
@@ -818,7 +824,7 @@ export default {
     2602: 'Your wallet has been restored',
     // actions/removewallet.ts
     2700: 'Remove wallet',
-    2701: 'Remove the wallet in Bitcoin Knots',
+    2701: 'Remove the wallet in Bitcoin Roots',
     2702: '⚠️ Please be sure that your wallet is empty, or that you have a backup. Without a backup this will lead to a permanent loss of funds.',
     2703: 'Your wallet has been removed.',
     // actions/config/autoconfig.ts
@@ -864,6 +870,12 @@ export default {
     3114: 'Unbestätigte Beträge von anderen, die im Mempool warten.',
     3115: 'Unreif',
     3116: 'Mining-Belohnungen, die noch nicht ausgegeben werden können.',
+    3117: 'Chain-Urteile zurückgesetzt',
+    3118: 'Von der zuvor installierten bitcoind-Variante geerbte Ungültigkeits-Urteile auf ${count} Chain-Spitze(n) gelöscht. Der Knoten folgt jetzt der besten Chain, die unter den Regeln dieser Variante gültig ist; die Reorganisation dorthin kann eine Weile dauern und braucht Peers auf dieser Chain.',
+    3119: 'Einige Chains nicht wiederherstellbar',
+    3120: '${count} von der vorherigen bitcoind-Variante geerbte(r) ungültige(r) Chain-Zweig(e) konnten nicht überdacht werden: Dieser beschnittene Knoten speichert die für eine Reorganisation dorthin nötigen Blöcke nicht mehr. Wirkt der Knoten auf der falschen Chain festgefahren, führen Sie „Blockchain neu indizieren" aus (auf einem beschnittenen Knoten lädt dies die Chain neu herunter).',
+    3121: 'Chain-Wiederherstellung fehlgeschlagen',
+    3122: 'Das Löschen der von der vorherigen bitcoind-Variante geerbten Ungültigkeits-Urteile ist fehlgeschlagen; beim nächsten Neustart wird es erneut versucht. Fehler: ${error}',
   } satisfies LangDict,
   pl_PL: {
     // main.ts
@@ -955,13 +967,13 @@ export default {
     // actions/deleteTxIndex.ts
     800: 'Usuń indeks transakcji',
     801: 'Usuwa indeks transakcji (txindex) w przypadku jego uszkodzenia.',
-    802: "Indeks transakcji zostanie przebudowany po ponownym uruchomieniu Bitcoin Knots, chyba że 'Indeks Coinstats' jest wyłączony w ustawieniach konfiguracji. Proszę tego nie robić, chyba że w pełni rozumiesz, co robisz.",
+    802: "Indeks transakcji zostanie przebudowany po ponownym uruchomieniu Bitcoin Roots, chyba że 'Indeks Coinstats' jest wyłączony w ustawieniach konfiguracji. Proszę tego nie robić, chyba że w pełni rozumiesz, co robisz.",
     803: 'Pomyślnie usunięto txindex',
 
     // actions/deleteCoinstatsIndex.ts
     900: 'Usuń indeks Coinstats',
     901: 'Usuwa indeks Coinstats (coinstatsindex) w przypadku jego uszkodzenia.',
-    902: "Indeks Coinstats zostanie przebudowany po ponownym uruchomieniu Bitcoin Knots, chyba że 'Indeks transakcji' jest wyłączony w ustawieniach konfiguracji. Proszę tego nie robić, chyba że w pełni rozumiesz, co robisz.",
+    902: "Indeks Coinstats zostanie przebudowany po ponownym uruchomieniu Bitcoin Roots, chyba że 'Indeks transakcji' jest wyłączony w ustawieniach konfiguracji. Proszę tego nie robić, chyba że w pełni rozumiesz, co robisz.",
     903: 'Pomyślnie usunięto indeks coinstats',
 
     // actions/assumeutxo.ts
@@ -1079,9 +1091,9 @@ export default {
 
     // actions/config/other.ts
     1700: 'ZeroMQ włączony',
-    1701: 'Interfejs ZeroMQ jest przydatny dla niektórych aplikacji, które mogą wymagać danych związanych z blokami i zdarzeniami transakcji z Bitcoin Knots. Na przykład LND wymaga włączenia ZeroMQ, aby LND otrzymywał najnowsze dane bloku',
+    1701: 'Interfejs ZeroMQ jest przydatny dla niektórych aplikacji, które mogą wymagać danych związanych z blokami i zdarzeniami transakcji z Bitcoin Roots. Na przykład LND wymaga włączenia ZeroMQ, aby LND otrzymywał najnowsze dane bloku',
     1702: 'Indeks transakcji',
-    1703: 'Włączając indeks transakcji (txindex), Bitcoin Knots zbuduje pełny indeks transakcji. Pozwala to Bitcoin Knots na dostęp do dowolnej transakcji za pomocą poleceń takich jak getrawtransaction.',
+    1703: 'Włączając indeks transakcji (txindex), Bitcoin Roots zbuduje pełny indeks transakcji. Pozwala to Bitcoin Roots na dostęp do dowolnej transakcji za pomocą poleceń takich jak getrawtransaction.',
     1704: 'Za mało miejsca na dysku',
     1705: 'Powiadomienie o bloku',
     1706: 'Polecenie powłoki, które Bitcoin uruchamia w swoim kontenerze przy każdej zmianie najlepszego bloku. %s w poleceniu jest zastępowane hashem bloku.',
@@ -1122,7 +1134,7 @@ export default {
     1800: 'Konfiguracja',
     1801: 'Portfel jest wyłączony',
 
-    // Knots peers additions
+    // Peer settings from the Knots lineage (not in Bitcoin Core)
     1232: 'Disable I2P',
     1233: 'Embedded I2P Daemon (i2pd)',
     1234: 'Custom I2P SAM Address',
@@ -1133,7 +1145,7 @@ export default {
     1258: 'Allow other nodes to find your server on the network.',
     1259: 'IP Address and port of an external I2P daemon SAM bridge (e.g., 192.168.1.1:7656)',
     1260: 'A valid IP address and port number (e.g., 192.168.1.1:7656)',
-    // Knots mempool additions
+    // Mempool policy from the Knots lineage (not in Bitcoin Core)
     1516: 'Enable Full RBF',
     1517: 'Policy for your node to use for relaying and mining unconfirmed transactions.',
     1518: 'Permit Bare Datacarrier',
@@ -1143,9 +1155,9 @@ export default {
     1522: 'Reject Tokens',
     1523: 'Reject tokens transactions (runes)',
     1524: 'Mempool Replacement',
-    1525: 'Które niepotwierdzone transakcje może zastąpić transakcja z wyższą opłatą.\n- Domyślnie: domyślne ustawienie Bitcoin Knots, podane poniżej.\n- Wyłączony: brak jakiegokolwiek zastępowania.\n- fee,optin: tylko transakcje, które sygnalizują, że mogą zostać zastąpione.\n- fee,-optin: dowolna transakcja (full RBF).',
+    1525: 'Które niepotwierdzone transakcje może zastąpić transakcja z wyższą opłatą.\n- Domyślnie: domyślne ustawienie Bitcoin Roots, podane poniżej.\n- Wyłączony: brak jakiegokolwiek zastępowania.\n- fee,optin: tylko transakcje, które sygnalizują, że mogą zostać zastąpione.\n- fee,-optin: dowolna transakcja (full RBF).',
     1526: 'Mempool TRUC',
-    1527: 'Jak traktować transakcje, które żądają limitów TRUC.\n- Domyślnie: domyślne ustawienie Bitcoin Knots, podane poniżej.\n- Reject: odrzucaj je całkowicie.\n- Accept: przekazuj je jak każdą inną transakcję.\n- Enforce: stosuj ograniczenia, których żądają.',
+    1527: 'Jak traktować transakcje, które żądają limitów TRUC.\n- Domyślnie: domyślne ustawienie Bitcoin Roots, podane poniżej.\n- Reject: odrzucaj je całkowicie.\n- Accept: przekazuj je jak każdą inną transakcję.\n- Enforce: stosuj ograniczenia, których żądają.',
     1528: 'Reject',
     1529: 'Accept',
     1530: 'Enforce',
@@ -1186,7 +1198,7 @@ export default {
     1565: 'Min Relay Maturity',
     1566: 'Minimum number of blocks that inputs must mature before being spent in transactions we relay',
     1567: 'Blocks',
-    // Knots other additions
+    // Other settings from the Knots lineage (not in Bitcoin Core)
     1741: 'Software Expiry',
     1742: 'Stop working after this POSIX timestamp (set to 0 to disable)',
     1743: 'timestamp',
@@ -1250,7 +1262,7 @@ export default {
     2602: 'Your wallet has been restored',
     // actions/removewallet.ts
     2700: 'Remove wallet',
-    2701: 'Remove the wallet in Bitcoin Knots',
+    2701: 'Remove the wallet in Bitcoin Roots',
     2702: '⚠️ Please be sure that your wallet is empty, or that you have a backup. Without a backup this will lead to a permanent loss of funds.',
     2703: 'Your wallet has been removed.',
     // actions/config/autoconfig.ts
@@ -1296,6 +1308,12 @@ export default {
     3114: 'Niepotwierdzone środki od innych, oczekujące w mempoolu.',
     3115: 'Niedojrzałe',
     3116: 'Nagrody za wydobycie, których nie można jeszcze wydać.',
+    3117: 'Werdykty łańcucha zresetowane',
+    3118: 'Wyczyszczono werdykty nieważności bloków odziedziczone po poprzednio zainstalowanym wariancie bitcoind na ${count} wierzchołku(ach) łańcucha. Węzeł podąża teraz za najlepszym łańcuchem ważnym według reguł tego wariantu; reorganizacja może chwilę potrwać i wymaga peerów na tym łańcuchu.',
+    3119: 'Niektóre łańcuchy nie do odzyskania',
+    3120: '${count} nieważna(e) gałąź(zie) łańcucha odziedziczona(e) po poprzednim wariancie bitcoind nie mogły zostać ponownie rozważone: ten przycięty węzeł nie przechowuje już bloków potrzebnych do reorganizacji na nie. Jeśli węzeł wydaje się utknięty na niewłaściwym łańcuchu, uruchom „Przeindeksuj blockchain" (na przyciętym węźle oznacza to ponowne pobranie łańcucha).',
+    3121: 'Odzyskiwanie łańcucha nie powiodło się',
+    3122: 'Czyszczenie werdyktów nieważności bloków odziedziczonych po poprzednim wariancie bitcoind nie powiodło się; próba zostanie ponowiona przy następnym restarcie. Błąd: ${error}',
   } satisfies LangDict,
   fr_FR: {
     // main.ts
@@ -1387,13 +1405,13 @@ export default {
     // actions/deleteTxIndex.ts
     800: "Supprimer l'index des transactions",
     801: "Supprime l'index des transactions (txindex) au cas où il serait corrompu.",
-    802: "L'index des transactions sera reconstruit une fois Bitcoin Knots redémarré, sauf si 'Index Coinstats' est désactivé dans les paramètres de configuration. Veuillez ne pas faire cela à moins que vous ne compreniez parfaitement ce que vous faites.",
+    802: "L'index des transactions sera reconstruit une fois Bitcoin Roots redémarré, sauf si 'Index Coinstats' est désactivé dans les paramètres de configuration. Veuillez ne pas faire cela à moins que vous ne compreniez parfaitement ce que vous faites.",
     803: 'txindex supprimé avec succès',
 
     // actions/deleteCoinstatsIndex.ts
     900: "Supprimer l'index Coinstats",
     901: "Supprime l'index Coinstats (coinstatsindex) au cas où il serait corrompu.",
-    902: "L'index Coinstats sera reconstruit une fois Bitcoin Knots redémarré, sauf si 'Index de transactions' est désactivé dans les paramètres de configuration. Veuillez ne pas faire cela à moins que vous ne compreniez parfaitement ce que vous faites.",
+    902: "L'index Coinstats sera reconstruit une fois Bitcoin Roots redémarré, sauf si 'Index de transactions' est désactivé dans les paramètres de configuration. Veuillez ne pas faire cela à moins que vous ne compreniez parfaitement ce que vous faites.",
     903: 'Index coinstats supprimé avec succès',
 
     // actions/assumeutxo.ts
@@ -1511,9 +1529,9 @@ export default {
 
     // actions/config/other.ts
     1700: 'ZeroMQ activé',
-    1701: "L'interface ZeroMQ est utile pour certaines applications qui peuvent nécessiter des données relatives aux blocs et aux événements de transaction de Bitcoin Knots. Par exemple, LND nécessite l'activation de ZeroMQ pour que LND reçoive les dernières données de bloc",
+    1701: "L'interface ZeroMQ est utile pour certaines applications qui peuvent nécessiter des données relatives aux blocs et aux événements de transaction de Bitcoin Roots. Par exemple, LND nécessite l'activation de ZeroMQ pour que LND reçoive les dernières données de bloc",
     1702: 'Index des transactions',
-    1703: "En activant l'index des transactions (txindex), Bitcoin Knots construira un index complet des transactions. Cela permet à Bitcoin Knots d'accéder à n'importe quelle transaction à l'aide de commandes telles que getrawtransaction.",
+    1703: "En activant l'index des transactions (txindex), Bitcoin Roots construira un index complet des transactions. Cela permet à Bitcoin Roots d'accéder à n'importe quelle transaction à l'aide de commandes telles que getrawtransaction.",
     1704: 'Espace disque insuffisant',
     1705: 'Notification de bloc',
     1706: 'Une commande shell que Bitcoin exécute dans son conteneur à chaque changement du meilleur bloc. %s dans la commande est remplacé par le hash du bloc.',
@@ -1554,7 +1572,7 @@ export default {
     1800: 'Configuration',
     1801: 'Le portefeuille est désactivé.',
 
-    // Knots peers additions
+    // Peer settings from the Knots lineage (not in Bitcoin Core)
     1232: 'Disable I2P',
     1233: 'Embedded I2P Daemon (i2pd)',
     1234: 'Custom I2P SAM Address',
@@ -1565,7 +1583,7 @@ export default {
     1258: 'Allow other nodes to find your server on the network.',
     1259: 'IP Address and port of an external I2P daemon SAM bridge (e.g., 192.168.1.1:7656)',
     1260: 'A valid IP address and port number (e.g., 192.168.1.1:7656)',
-    // Knots mempool additions
+    // Mempool policy from the Knots lineage (not in Bitcoin Core)
     1516: 'Enable Full RBF',
     1517: 'Policy for your node to use for relaying and mining unconfirmed transactions.',
     1518: 'Permit Bare Datacarrier',
@@ -1575,9 +1593,9 @@ export default {
     1522: 'Reject Tokens',
     1523: 'Reject tokens transactions (runes)',
     1524: 'Mempool Replacement',
-    1525: "Quelles transactions non confirmées une transaction à frais plus élevés peut remplacer.\n- Par défaut : le réglage par défaut de Bitcoin Knots, indiqué ci-dessous.\n- Désactivé : aucun remplacement.\n- fee,optin : seulement les transactions qui signalent qu'elles peuvent être remplacées.\n- fee,-optin : n'importe quelle transaction (full RBF).",
+    1525: "Quelles transactions non confirmées une transaction à frais plus élevés peut remplacer.\n- Par défaut : le réglage par défaut de Bitcoin Roots, indiqué ci-dessous.\n- Désactivé : aucun remplacement.\n- fee,optin : seulement les transactions qui signalent qu'elles peuvent être remplacées.\n- fee,-optin : n'importe quelle transaction (full RBF).",
     1526: 'Mempool TRUC',
-    1527: "Comment traiter les transactions qui demandent des limites TRUC.\n- Par défaut : le réglage par défaut de Bitcoin Knots, indiqué ci-dessous.\n- Reject : les refuser entièrement.\n- Accept : les relayer comme toute autre transaction.\n- Enforce : appliquer les restrictions qu'elles demandent.",
+    1527: "Comment traiter les transactions qui demandent des limites TRUC.\n- Par défaut : le réglage par défaut de Bitcoin Roots, indiqué ci-dessous.\n- Reject : les refuser entièrement.\n- Accept : les relayer comme toute autre transaction.\n- Enforce : appliquer les restrictions qu'elles demandent.",
     1528: 'Reject',
     1529: 'Accept',
     1530: 'Enforce',
@@ -1618,7 +1636,7 @@ export default {
     1565: 'Min Relay Maturity',
     1566: 'Minimum number of blocks that inputs must mature before being spent in transactions we relay',
     1567: 'Blocks',
-    // Knots other additions
+    // Other settings from the Knots lineage (not in Bitcoin Core)
     1741: 'Software Expiry',
     1742: 'Stop working after this POSIX timestamp (set to 0 to disable)',
     1743: 'timestamp',
@@ -1682,7 +1700,7 @@ export default {
     2602: 'Your wallet has been restored',
     // actions/removewallet.ts
     2700: 'Remove wallet',
-    2701: 'Remove the wallet in Bitcoin Knots',
+    2701: 'Remove the wallet in Bitcoin Roots',
     2702: '⚠️ Please be sure that your wallet is empty, or that you have a backup. Without a backup this will lead to a permanent loss of funds.',
     2703: 'Your wallet has been removed.',
     // actions/config/autoconfig.ts
@@ -1728,5 +1746,11 @@ export default {
     3114: "Les fonds non confirmés reçus d'autres personnes, en attente dans le mempool.",
     3115: 'Immature',
     3116: 'Les récompenses de minage qui ne peuvent pas encore être dépensées.',
+    3117: 'Verdicts de chaîne réinitialisés',
+    3118: 'Verdicts de blocs invalides hérités de la variante bitcoind précédemment installée effacés sur ${count} pointe(s) de chaîne. Le nœud suit désormais la meilleure chaîne valide selon les règles de cette variante ; la réorganisation peut prendre un certain temps et nécessite des pairs sur cette chaîne.',
+    3119: 'Certaines chaînes non récupérables',
+    3120: "${count} branche(s) de chaîne invalide(s) héritée(s) de la variante bitcoind précédente n'ont pas pu être reconsidérées : ce nœud élagué ne stocke plus les blocs nécessaires pour se réorganiser vers elles. Si le nœud semble bloqué sur la mauvaise chaîne, exécutez « Réindexer la blockchain » (sur un nœud élagué cela retélécharge la chaîne).",
+    3121: 'Échec de la récupération de chaîne',
+    3122: "L'effacement des verdicts de blocs invalides hérités de la variante bitcoind précédente a échoué ; nouvelle tentative au prochain redémarrage. Erreur : ${error}",
   } satisfies LangDict,
 }

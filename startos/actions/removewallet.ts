@@ -21,7 +21,7 @@ export const removewallet = sdk.Action.withoutInput(
 
     return {
       name: i18n('Remove wallet'),
-      description: i18n('Remove the wallet in Bitcoin Knots'),
+      description: i18n('Remove the wallet in Bitcoin Roots'),
       warning: i18n(
         '⚠️ Please be sure that your wallet is empty, or that you have a backup. Without a backup this will lead to a permanent loss of funds.',
       ),
