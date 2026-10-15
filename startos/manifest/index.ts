@@ -13,7 +13,7 @@ export const manifest = setupManifest({
   title: 'Bitcoin Roots',
   license: 'MIT',
   donationUrl: null,
-  packageRepo: 'https://github.com/Start9-Community/bitcoin-roots-startos',
+  packageRepo: 'https://github.com/morgansolivane/bitcoin-roots-startos',
   upstreamRepo: 'https://github.com/LuganoPlanB/bitcoin-roots',
   marketingUrl: 'https://plan-b.foundation/bitcoin-roots/',
   description: { short, long },

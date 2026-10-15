@@ -14,7 +14,7 @@
 This package is derived from the Bitcoin Knots (pre-RDTS) StartOS package; the two share a config model because the Roots binary accepts the same policy options (76 of the 78 modelled keys are present in both — see [Limitations and Differences](#limitations-and-differences)).
 
 - **Upstream repo:** <https://github.com/LuganoPlanB/bitcoin-roots>
-- **Wrapper repo:** <https://github.com/Start9-Community/bitcoin-roots-startos>
+- **Wrapper repo:** <https://github.com/morgansolivane/bitcoin-roots-startos>
 
 ---
 
@@ -262,12 +262,12 @@ This section has no counterpart in the Bitcoin Core package. It exists because a
 
 A flavor switch carries the previous binary's **persisted per-block validity verdicts** (`CBlockIndex::nStatus`, in `blocks/index/`) into the new one. bitcoind trusts them verbatim at startup — it never re-validates buried blocks under the new binary's rules, and the stored verdict does not record which rules produced it. So a `BLOCK_FAILED_VALID` mark that an RDTS-enforcing Knots build wrote would survive into Roots, which knows nothing about RDTS, cannot recognise the mark as foreign, and would therefore refuse the most-work chain it is supposed to follow. Clearing those marks is what the `chain-recovery` oneshot does.
 
-| Piece                                    | Role                                                                                                                       |
-| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `startos/forkRecovery.ts`                | `reconsiderInvalidTips` — `reconsiderblock` on each invalid chain tip, re-fetching tips every iteration                     |
-| `store.json` → `reconsiderInvalidTips`   | The durable "work queued" flag, set by the `^#knots:29.3` migration edge and cleared when the pass completes                |
-| `store.json` → `rdtsEnforcedLastRun`     | Records the enforcement regime of the binary that last advanced this datadir. Roots always writes `false`                   |
-| `chain-recovery` oneshot (`main.ts`)     | Runs once per start as soon as RPC answers, `requires: ['bitcoind']`. Nothing depends on it, so it never blocks the service |
+| Piece                                  | Role                                                                                                                        |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `startos/forkRecovery.ts`              | `reconsiderInvalidTips` — `reconsiderblock` on each invalid chain tip, re-fetching tips every iteration                     |
+| `store.json` → `reconsiderInvalidTips` | The durable "work queued" flag, set by the `^#knots:29.3` migration edge and cleared when the pass completes                |
+| `store.json` → `rdtsEnforcedLastRun`   | Records the enforcement regime of the binary that last advanced this datadir. Roots always writes `false`                   |
+| `chain-recovery` oneshot (`main.ts`)   | Runs once per start as soon as RPC answers, `requires: ['bitcoind']`. Nothing depends on it, so it never blocks the service |
 
 Three properties worth knowing:
 
