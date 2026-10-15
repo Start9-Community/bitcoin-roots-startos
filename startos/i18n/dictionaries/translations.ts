@@ -323,9 +323,6 @@ export default {
     1566: 'Minimum number of blocks that inputs must mature before being spent in transactions we relay',
     1567: 'Blocks',
     // Other settings from the Knots lineage (not in Bitcoin Core)
-    1741: 'Software Expiry',
-    1742: 'Stop working after this POSIX timestamp (set to 0 to disable)',
-    1743: 'timestamp',
     1744: 'Template Construction',
     1745: 'Set limits for block size/weight',
     1746: 'Max Block Size',
@@ -761,9 +758,6 @@ export default {
     1566: 'Minimum number of blocks that inputs must mature before being spent in transactions we relay',
     1567: 'Blocks',
     // Other settings from the Knots lineage (not in Bitcoin Core)
-    1741: 'Software Expiry',
-    1742: 'Stop working after this POSIX timestamp (set to 0 to disable)',
-    1743: 'timestamp',
     1744: 'Template Construction',
     1745: 'Set limits for block size/weight',
     1746: 'Max Block Size',
@@ -1199,9 +1193,6 @@ export default {
     1566: 'Minimum number of blocks that inputs must mature before being spent in transactions we relay',
     1567: 'Blocks',
     // Other settings from the Knots lineage (not in Bitcoin Core)
-    1741: 'Software Expiry',
-    1742: 'Stop working after this POSIX timestamp (set to 0 to disable)',
-    1743: 'timestamp',
     1744: 'Template Construction',
     1745: 'Set limits for block size/weight',
     1746: 'Max Block Size',
@@ -1637,9 +1628,6 @@ export default {
     1566: 'Minimum number of blocks that inputs must mature before being spent in transactions we relay',
     1567: 'Blocks',
     // Other settings from the Knots lineage (not in Bitcoin Core)
-    1741: 'Software Expiry',
-    1742: 'Stop working after this POSIX timestamp (set to 0 to disable)',
-    1743: 'timestamp',
     1744: 'Template Construction',
     1745: 'Set limits for block size/weight',
     1746: 'Max Block Size',

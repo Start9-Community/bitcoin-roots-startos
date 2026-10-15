@@ -3,7 +3,8 @@
 // do not spend their first words on the name. `long` is rendered unclamped on
 // the details page; the 2000-character limit is enforced at validation.
 export const short = {
-  en_US: "A Bitcoin full node with Knots' conservative policy and Core consensus",
+  en_US:
+    "A Bitcoin full node with Knots' conservative policy and Core consensus",
   es_ES:
     'Un nodo completo de Bitcoin con la política conservadora de Knots y el consenso de Core',
   de_DE:

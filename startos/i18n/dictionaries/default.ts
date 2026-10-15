@@ -315,9 +315,6 @@ const dict = {
   'Other Settings': 1739,
   'Edit more values in bitcoin.conf': 1740,
   // Other settings from the Knots lineage (not in Bitcoin Core)
-  'Software Expiry': 1741,
-  'Stop working after this POSIX timestamp (set to 0 to disable)': 1742,
-  timestamp: 1743,
   'Template Construction': 1744,
   'Set limits for block size/weight': 1745,
   'Max Block Size': 1746,
