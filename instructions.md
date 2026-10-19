@@ -3,8 +3,7 @@
 ## Documentation
 
 - [Start9 Bitcoin guides](https://docs.start9.com/bitcoin-guides/) — operating-a-Bitcoin-node guides curated for StartOS users (connecting wallets, dependent services, common workflows).
-- [About Bitcoin Roots](https://plan-b.foundation/bitcoin-roots/) — upstream project's description of what Roots changes and what it deliberately does not.
-- [Transaction relay policy](https://plan-b.foundation/bitcoin-roots/doc/policy/README) — upstream's account of where local policy ends and consensus begins.
+- [Bitcoin Roots documentation](https://plan-b.foundation/bitcoin-roots/) — upstream's guide to what Roots changes from Bitcoin Core, and its relay and mempool policy.
 
 ## What you get on StartOS
 
@@ -12,8 +11,8 @@
 - An embedded **i2pd** sidecar that brings up I2P transport automatically — your node accepts inbound peers over I2P out of the box, with a separate **I2P Daemon Console** interface available when you turn the i2pd web console on.
 - An automatic Tor outbound proxy (your node reaches `.onion` peers without configuration); add a `.onion` to the Peer Interface to advertise yourself and accept inbound Tor connections too.
 - Disk-aware defaults: on disks smaller than 900 GB the package enables pruning and disables `txindex`; on larger disks you get a full archival node. The transition is transparent — pruned nodes route RPC through a small `btc-rpc-proxy` sidecar so port 8332 always serves RPC the same way, and it fetches any block your node has pruned from the peer-to-peer network on demand, so wallets and services see a node that behaves as though nothing were pruned.
-- Shared `bitcoind` package id with Bitcoin Core and Bitcoin Knots — you can switch here from any of them without re-syncing the chain, and every dependent service (Electrs, LND, Mempool, BTCPay and the rest) keeps working against the same node with no reconfiguration.
-- **Conservative policy without a consensus change.** Roots restores the data-carrier limits Bitcoin Core v30 removed, as settings you control rather than as rules about which blocks are valid: an 83-byte default OP_RETURN budget, bare pubkey and bare multisig relay off, parasite and token filters on. It does **not** enforce RDTS/BIP-110. A transaction your node refuses to relay can still be perfectly valid, and if a valid block contains it your node accepts the block — so running Roots cannot put you on a different chain from everyone else.
+- Shared `bitcoind` package id with Bitcoin Core and Bitcoin Knots (pre-RDTS) — you can switch here from either without re-syncing the chain, and every dependent service (Electrs, LND, Mempool, BTCPay and the rest) keeps working against the same node with no reconfiguration.
+- **Conservative policy without a consensus change.** Roots restores the data-carrier limits Bitcoin Core v30 removed, as settings you control rather than as rules about which blocks are valid: an 83-byte default OP_RETURN budget, bare pubkey and bare multisig relay off, and the parasite filter on. It does **not** enforce RDTS/BIP-110. A transaction your node refuses to relay can still be perfectly valid, and if a valid block contains it your node accepts the block — so running Roots cannot put you on a different chain from everyone else.
 
 ## Getting set up
 
@@ -25,13 +24,9 @@ Bitcoin Roots starts and begins Initial Block Download (IBD) immediately on inst
 
 > Initial Block Download takes hours to days depending on hardware and network. The node is functional immediately but RPC calls that depend on chain state will return partial results until sync completes.
 
-### If you are switching from Bitcoin Core or Bitcoin Knots
+### If you are switching from Bitcoin Core or Bitcoin Knots (pre-RDTS)
 
-Nothing is re-synced and nothing needs reconfiguring — it is the same service with a different binary. Two things do change, and both are deliberate:
-
-1. **Your mempool policy settings are reset to Roots' defaults.** Roots and the flavor you came from do not share defaults even where they share setting names, so values carried over would quietly hold your node to the old flavor's policy. Anything you had customised under **Mempool Settings** needs setting again if you want it.
-2. **Coming from the RDTS-enforcing Bitcoin Knots**, your node does a one-time chain check on its first start. Knots recorded "invalid" against blocks that are invalid only under BIP-110, and Roots does not have that rule — so those verdicts are cleared and the node re-evaluates those branches under its own rules. You will see a **Chain Verdicts Reset** notification if anything was cleared. The node may then reorganise onto a different chain, which can take a while and needs peers on it.
-   - If your node is **pruned**, some branches may be unrecoverable this way — it no longer stores the blocks needed to reorganise that far back. You will get a **Some Chains Not Recoverable** warning. If the node then looks stuck on the wrong chain, run **Reindex Blockchain** (on a pruned node this re-downloads the chain).
+Nothing is re-synced and nothing needs reconfiguring — it is the same service with a different binary. **Your mempool policy settings are reset to Roots' defaults.** Roots and the flavor you came from do not share defaults even where they share setting names, so values carried over would quietly hold your node to the old flavor's policy. Anything you had customised under **Mempool Settings** needs setting again if you want it.
 
 ## Using Bitcoin Roots
 
@@ -92,4 +87,4 @@ Every action above acts on the currently selected wallet, so if you run more tha
 - **Wallet actions cover hot-wallet basics only.** Anything beyond the listed actions (coin control, PSBTs, multisig, hardware-wallet flows) needs an external wallet talking to the RPC interface.
 - **Advanced i2pd tuning is not exposed.** Bandwidth class, transit share, floodfill, console, and tunnel limits are baked into the bundled `i2pd.conf`. To change them, edit `i2pd.conf` on the `i2pd` volume directly.
 - **The service log filters the I2P router's routine chatter.** Lines the router still prints carry an `[i2pd]` prefix; Bitcoin's own lines are unprefixed. Real router problems still appear — only known-routine network noise is dropped.
-- **The bundled I2P router carries only your node's traffic.** It relays nothing for other I2P users, so enabling I2P costs you your own Bitcoin traffic and nothing more. An update also raised its bandwidth class from L to O, which makes inbound I2P reliable without adding any relayed traffic. Both are defaults: set `notransit` or the bandwidth class in `i2pd.conf` on the `i2pd` volume and your values stick — including turning relaying on, if you want to support the I2P network.
+- **The bundled I2P router carries only your node's traffic.** It relays nothing for other I2P users, so enabling I2P costs you your own Bitcoin traffic and nothing more. Its bandwidth class is O, which makes inbound I2P reliable without adding any relayed traffic. Both are defaults: set `notransit` or the bandwidth class in `i2pd.conf` on the `i2pd` volume and your values stick — including turning relaying on, if you want to support the I2P network.

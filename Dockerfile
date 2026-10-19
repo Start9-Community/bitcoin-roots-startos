@@ -12,43 +12,18 @@ RUN apt-get update && \
         ca-certificates wget gnupg && \
     rm -rf /var/lib/apt/lists/*
 
-# Pinned Bitcoin Roots release signer.
-#
-# Unlike Bitcoin Core (5-of-7) and Bitcoin Knots (3-of-5), Roots releases are
-# signed by ONE key, so this is a 1-of-1 quorum and there is no tolerance for a
-# compromised signer. That is upstream's release model, not a choice this
-# package makes; REQUIRED_QUORUM is kept as a knob so adding a second signer
-# later is a one-line change.
-#
-# Trust basis, stated plainly because it is weaker than it looks: upstream
-# publishes this key ONLY as a comment block inside the SHA512SUMS file it
-# signs. It is not on keys.openpgp.org, not in the repository's SECURITY.md or
-# doc/release-process.md, and not in a builder-keys file. A key read out of the
-# artifact it attests to proves nothing, so this build must never do that — it
-# uses the copy committed to assets/release-keys/ and nothing else.
-#
-# What that copy buys is continuity, not identity: it was taken from the
-# v29.4-roots.4 manifest and verified to be the same key that signed every
-# Roots release back to the project's first (v29.3-roots.1, v30.3-roots.1 and
-# v31.1-roots.1 all carry it). So verification here proves a release came from
-# whoever signed the earlier ones. It does NOT independently establish that
-# that party is the Plan ₿ Foundation. Treat a fingerprint change as a trust
-# decision for a human, never a build fix: if upstream rotates, confirm the new
-# key through a channel that is not the release manifest before touching this.
+# Upstream signs with one key, published only inside the SHA512SUMS it signs;
+# a fingerprint change is a trust decision, never a build fix (UPDATING.md).
 ENV PINNED_FINGERPRINTS="\
 5EADD53F2CD1F0B7AEEE920D25FC5C29CD528E32"
 ENV REQUIRED_QUORUM=1
 
-# Roots publishes Linux x86_64 and aarch64 only — no riscv64 build exists, so
-# that platform fails here rather than later with a confusing 404.
 RUN case "${TARGETPLATFORM}" in \
       "linux/amd64")   echo "bitcoin-roots-linux-x86_64.tar.gz"  > /tarball-name ;; \
       "linux/arm64")   echo "bitcoin-roots-linux-aarch64.tar.gz" > /tarball-name ;; \
       *) echo "Unsupported platform: ${TARGETPLATFORM} (Roots publishes linux/amd64 and linux/arm64)" && exit 1 ;; \
     esac
 
-# The tarball filenames carry no version — the git tag is the only thing that
-# distinguishes releases, so VERSION must match the tag exactly minus the `v`.
 RUN url="https://github.com/LuganoPlanB/bitcoin-roots/releases/download/v${VERSION}" && \
     wget -q "${url}/$(cat /tarball-name)" \
             "${url}/SHA512SUMS" \
@@ -106,10 +81,7 @@ RUN set -e; \
     if [ "${bad}" -ne 0 ]; then echo "BAD SIGNATURE FROM PINNED KEY"; exit 1; fi; \
     if [ "${signers}" -lt "${REQUIRED_QUORUM}" ]; then echo "INSUFFICIENT QUORUM"; exit 1; fi
 
-# Anchor the filename to end-of-line: SHA512SUMS also lists the .patch and the
-# other platforms' archives, and an unanchored match would check the wrong one.
-# `sha512sum -c` fails on an empty stdin, so a filename missing from the
-# manifest fails here too.
+# SHA512SUMS also lists other archives; anchor the match to the line end.
 RUN grep " $(cat /tarball-name)$" SHA512SUMS | sha512sum -c
 
 # Archive root is bitcoin-roots-<VERSION>/ — stripped so paths below are stable.
@@ -122,17 +94,12 @@ ENV BITCOIN_DATA=/root/.bitcoin
 ENV BITCOIN_PREFIX=/opt/bitcoin
 ENV PATH=${BITCOIN_PREFIX}/bin:$PATH
 
-# curl is load-bearing: the assumeutxo action shells out to it in this image to
-# download the UTXO snapshot, and that is an https URL, so ca-certificates is
-# named explicitly rather than left to curl's recommends.
+# curl is load-bearing: the assumeutxo action shells out to it in this image.
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         ca-certificates curl e2fsprogs jq yq && \
     rm -rf /var/lib/apt/lists/*
 
-# The 29.4 Roots archive ships bin/ and share/ only. Core 31.x additionally
-# ships libexec/bitcoin-node for its IPC mode; there is nothing to copy here,
-# and the package exposes no IPC action for that reason.
 COPY --from=builder /build/bin/bitcoind ${BITCOIN_PREFIX}/bin/
 COPY --from=builder /build/bin/bitcoin-cli ${BITCOIN_PREFIX}/bin/
 

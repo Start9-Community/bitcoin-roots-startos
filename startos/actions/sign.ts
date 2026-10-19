@@ -14,14 +14,14 @@ const inputSpec = InputSpec.of({
   address: Value.dynamicText(async ({ effects }) => ({
     name: i18n('Address'),
     description: i18n(
-      'The Bitcoin address you want to use to sign the message.',
+      'A legacy address from this wallet, starting with 1. Message signing does not support SegWit or Taproot addresses.',
     ),
     required: true,
     default: null,
     patterns: [
       {
-        regex: '^[a-zA-Z0-9]+$',
-        description: i18n('Must be alphanumeric.'),
+        regex: '^1[a-km-zA-HJ-NP-Z1-9]{25,34}$',
+        description: i18n('Must be a legacy address starting with 1.'),
       },
     ],
   })),

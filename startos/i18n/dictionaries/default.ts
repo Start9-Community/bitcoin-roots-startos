@@ -364,7 +364,8 @@ const dict = {
   // actions/wallet - sign.ts
   'Sign Message': 1940,
   'Sign a message with one of your Bitcoin addresses.': 1941,
-  'The Bitcoin address you want to use to sign the message.': 1942,
+  'A legacy address from this wallet, starting with 1. Message signing does not support SegWit or Taproot addresses.': 1942,
+  'Must be a legacy address starting with 1.': 3117,
   Message: 1943,
   'The message you want to sign.': 1944,
   'Your signature is below.': 1945,
@@ -374,8 +375,6 @@ const dict = {
   'Transaction ID': 1951,
   'Prioritize Transaction': 1952,
   'Prioritize transaction with a specific fee delta.': 1953,
-  'Priority Delta': 1954,
-  'The transaction selection algorithm considers the tx as it would have a higher priority': 1955,
   'Fee Delta': 1956,
   'The fee value (in satoshis) to add (or subtract, if negative).': 1957,
   '${txid} has been prioritized.': 1958,
@@ -443,13 +442,6 @@ const dict = {
   'Unconfirmed funds from others, waiting in the mempool.': 3114,
   Immature: 3115,
   'Mining rewards that cannot be spent yet.': 3116,
-  // forkRecovery.ts notifications (main.ts chain-recovery oneshot)
-  'Chain Verdicts Reset': 3117,
-  "Cleared invalid-block verdicts inherited from the previously installed bitcoind flavor on ${count} chain tip(s). The node now follows the best chain that is valid under this flavor's rules; reorganizing onto it may take a while and requires peers on that chain.": 3118,
-  'Some Chains Not Recoverable': 3119,
-  '${count} invalid chain branch(es) inherited from the previous bitcoind flavor could not be reconsidered: this pruned node no longer stores the blocks needed to reorganize onto them. If the node appears stuck on the wrong chain, run Reindex Blockchain (on a pruned node this re-downloads the chain).': 3120,
-  'Chain Recovery Failed': 3121,
-  'Clearing invalid-block verdicts inherited from the previous bitcoind flavor failed; it will be retried at the next restart. Error: ${error}': 3122,
 } as const
 
 /**

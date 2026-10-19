@@ -222,7 +222,6 @@ const { InputSpec, Value, Variants, List } = sdk
 export const diskUsage = utils.once(() => diskusage.check('/'))
 export const archivalMin = 900_000_000_000
 
-// Override defaults (diverging from upstream Bitcoin Roots)
 export const defaultDatacarriercost = 1
 
 export const defaultDbcache = () =>
@@ -338,7 +337,7 @@ export const fullConfigSpec = sdk.InputSpec.of({
       accept: i18n('Accept'),
       enforce: i18n('Enforce'),
     },
-    footnote: `${i18n('Default')}: accept`,
+    footnote: `${i18n('Default')}: enforce`,
   } as const),
   permitbareanchor: Value.triState({
     name: i18n('Permit Bare Anchor'),
@@ -475,7 +474,7 @@ export const fullConfigSpec = sdk.InputSpec.of({
     required: true,
     min: 0,
     integer: true,
-    footnote: `${i18n('Default')}: 4`,
+    footnote: `${i18n('Default')}: 1`,
   }),
   acceptnonstddatacarrier: Value.triState({
     name: i18n('Accept Non-Standard Datacarrier'),
