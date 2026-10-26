@@ -18,14 +18,6 @@ const inputSpec = InputSpec.of({
       },
     ],
   })),
-  prioritydelta: Value.dynamicText(async ({ effects }) => ({
-    name: i18n('Priority Delta'),
-    description: i18n(
-      'The transaction selection algorithm considers the tx as it would have a higher priority',
-    ),
-    required: true,
-    default: '1',
-  })),
   deltafee: Value.dynamicText(async ({ effects }) => ({
     name: i18n('Fee Delta'),
     description: i18n(
@@ -59,7 +51,7 @@ export const prioritiseTransaction = sdk.Action.withInput(
   // execution function
   async ({ effects, input }) => {
     const conf = (await bitcoinConfFile.read().const(effects))!
-    const { txid, prioritydelta, deltafee } = input
+    const { txid, deltafee } = input
 
     const prioritisetransaction = await sdk.SubContainer.withTemp(
       effects,
@@ -71,7 +63,7 @@ export const prioritiseTransaction = sdk.Action.withInput(
           ...bitcoinCliArgs({ prune: !!conf.prune }),
           'prioritisetransaction',
           `${txid}`,
-          `${prioritydelta}`,
+          '0',
           `${deltafee}`,
         ])
       },

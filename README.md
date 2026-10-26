@@ -14,7 +14,7 @@
 This package is derived from the Bitcoin Knots (pre-RDTS) StartOS package; the two share a config model because the Roots binary accepts the same policy options (76 of the 78 modelled keys are present in both — see [Limitations and Differences](#limitations-and-differences)).
 
 - **Upstream repo:** <https://github.com/LuganoPlanB/bitcoin-roots>
-- **Wrapper repo:** <https://github.com/morgansolivane/bitcoin-roots-startos>
+- **Wrapper repo:** <https://github.com/Start9-Community/bitcoin-roots-startos>
 
 ---
 
@@ -30,7 +30,6 @@ This package is derived from the Bitcoin Knots (pre-RDTS) StartOS package; the t
 - [Tasks](#tasks)
 - [Health Checks](#health-checks)
 - [Backups and Restore](#backups-and-restore)
-- [Chain-Split Recovery](#chain-split-recovery)
 - [Limitations and Differences](#limitations-and-differences)
 - [Quick Reference for AI Consumers](#quick-reference-for-ai-consumers)
 
@@ -57,7 +56,7 @@ Read the trust basis before relying on it: upstream publishes that key **only as
 | `proxy-sub`    | `btc-rpc-proxy`         | while the node is pruned | Serves RPC on 8332 and fetches pruned blocks over p2p                                                                                                                                                                                      |
 | _temporaries_  | built locally, `python` | seconds to hours         | One per action that shells out — `assumeutxo`, `delete-peers`, `delete-txindex`, `delete-coinstats`, `getnetworkinfo`, `getblockchaininfo`, every Wallet-group action, and `rpc-auth-generator` (the `python` image, running `rpcauth.py`) |
 
-Three oneshots run around the daemons. `nocow` sets the btrfs no-COW attribute across the data directory and must finish before `bitcoind` starts. `synced-true` runs after it, and is described under [Installation and First-Run Flow](#installation-and-first-run-flow). `chain-recovery` is this flavor's own, described under [Chain-Split Recovery](#chain-split-recovery).
+Two oneshots bracket the daemons. `nocow` sets the btrfs no-COW attribute across the data directory and must finish before `bitcoind` starts. `synced-true` runs after it, and is described under [Installation and First-Run Flow](#installation-and-first-run-flow).
 
 The i2pd image is declared `emulateMissing: true`, inherited from the sibling flavors. Since this package builds for x86_64 and aarch64 only — both of which i2pd publishes — nothing is emulated in practice.
 
@@ -118,7 +117,7 @@ Three values are coerced rather than enforced: a `prune` target between 1 and th
 
 Written at init, which is what makes most of it yours. `merge` fills in missing keys from their defaults and repairs invalid ones; a valid value you set survives — `bandwidth` accepts `L`, `O`, `P`, `X`, or a number in KB/s. The one exception, once: the release that raised the shipped bandwidth default from `L` to `O` also raises an existing `bandwidth = L` in a single migration write, because the package cannot tell its own old default from a hand-set `L`. That release's notes disclose it; any value set afterwards, `L` included, sticks.
 
-The exceptions are literals, repaired at the next init: `log=stdout` and `loglevel=warn` (pinned at `critical` in earlier revisions, which is how a failing SAM bridge left no trace at all), and the loopback addresses for the SOCKS proxy and I2PControl, neither of which may be exposed beyond the service's own network namespace. Everything else — bandwidth class, transit share and tunnel limits, the listen port, the web console — is a default only, and is the supported way to tune i2pd, since none of it is in the StartOS UI. Two of those defaults are policy rather than tuning: `bandwidth=O` and `notransit=true`. i2pd's bandwidth, share and transit-tunnel limits all cap **transit** — traffic relayed for other I2P users — and none of them touches the node's own, so refusing transit is what takes relayed traffic to zero while `O` keeps the advertised capacity that makes this router's own LeaseSet publication land. Setting `notransit=false` turns relaying back on, bounded by `bandwidth` and `share`. Enabling `http.enabled` is what publishes the I2P console interface.
+The exceptions are literals, repaired at the next init: `log=stdout` and `loglevel=warn`, and the loopback addresses for the SOCKS proxy and I2PControl, neither of which may be exposed beyond the service's own network namespace. Everything else — bandwidth class, transit share and tunnel limits, the listen port, the web console — is a default only, and is the supported way to tune i2pd, since none of it is in the StartOS UI. Two of those defaults are policy rather than tuning: `bandwidth=O` and `notransit=true`. i2pd's bandwidth, share and transit-tunnel limits all cap **transit** — traffic relayed for other I2P users — and none of them touches the node's own, so refusing transit is what takes relayed traffic to zero while `O` keeps the advertised capacity that makes this router's own LeaseSet publication land. Setting `notransit=false` turns relaying back on, bounded by `bandwidth` and `share`. Enabling `http.enabled` is what publishes the I2P console interface.
 
 ### store.json
 
@@ -150,7 +149,7 @@ Two interfaces always, two more when ZeroMQ is enabled, and one more when the I2
 | ZeroMQ Transaction | `zmq-tx`      | api  | 28333                  | when ZeroMQ is enabled                          |
 | I2P Daemon Console | `i2p-console` | ui   | 7070                   | when `i2psam` is set and the i2pd console is on |
 
-**Legacy peer onions:** every init retires the old container-port 8333 binding on `peer` if it is still there, then asks Tor, through `tor-startos`'s `setupOnionReattachment`, to attach that host's retained addresses to container port 58333. It is an init step rather than a migration because an install whose data version is a range, which a flavor switch leaves behind, never runs a migration's `up()`. Their public onion port remains 8333. The request waits for Tor `0.4.9.13:1` or later and for the peer binding to be enabled. It never automatically moves an address from another host.
+**Legacy peer onions:** every init retires the old container-port 8333 binding on `peer` if it is still there, then asks Tor, through `tor-startos`'s `setupOnionReattachment`, to attach that host's retained addresses to container port 58333. It is an init step rather than a migration because an install whose data version is a range, which a flavor switch leaves behind, never runs a migration's `up()`. Their public onion port remains 8333. The request waits for a Tor release that supports reattachment and for the peer binding to be enabled. It never automatically moves an address from another host.
 
 Block and transaction notifications are two interfaces rather than one because bitcoind publishes them on separate ports, so a dependent that needs only one of them (LND, for instance) can resolve it independently.
 
@@ -166,12 +165,12 @@ There is no setup wizard, no credential to enter, and no task raised at install 
 2. **Seeded divergences.** The ZeroMQ publishers and `blockfilterindex` are switched on because dependent services need them, `i2psam` points at the embedded router, `dbcache` and `dbbatchsize` are scaled to system RAM for the duration of the sync, and `assumevalid` is pinned.
 3. **Every init repairs all three models.** Install, update, and restore each merge `store.json`, `i2pd.conf`, and `bitcoin.conf`, which fills in missing keys and corrects invalid ones. An update is therefore how a new enforced value reaches an existing install.
 4. **`externalip` is derived, not asked for.** It follows whatever addresses are published on the peer interface, so adding a Tor address there is what makes the node advertise it and what turns Tor into a running dependency.
-5. **Every start** runs `nocow` and `clean-chainstate-old` before bitcoind.
+5. **Every start** runs `nocow` before bitcoind.
 6. **When sync completes**, `synced-true` posts a Sync Complete notification and clears the two cache settings. It fires once per data directory; a reindex resets the flag, so it fires again when that finishes.
 
-A switch from **Bitcoin Core 28.x–31.x**, from **Bitcoin Knots (pre-RDTS)**, or from **Bitcoin Knots** (the RDTS-enforcing build) keeps the data directory and runs as an update — same package id, same `main` volume, so the chain data and every dependent survive it. The mempool policy keys are reset on every one of those edges so Roots' own defaults apply rather than the previous flavor's values; coming down from Core 30 the moved `coinstatsindex` is removed, and from Core 31 the newer-format `fee_estimates.dat` is removed too (an older binary hard-fails on it rather than ignoring it).
+A switch from **Bitcoin Core 28.x–31.x**, from **Bitcoin Knots (pre-RDTS)**, or from a `#knots` build that predates RDTS enforcement keeps the data directory and runs as an update — same package id, same `main` volume, so the chain data and every dependent survive it. The mempool policy keys are reset on every one of those edges so Roots' own defaults apply rather than the previous flavor's values; coming down from Core 30 the moved `coinstatsindex` is removed, and from Core 31 the newer-format `fee_estimates.dat` is removed too (an older binary hard-fails on it rather than ignoring it).
 
-Switching in from the RDTS-enforcing Knots additionally queues **chain-split recovery**, described under [Chain-Split Recovery](#chain-split-recovery). Coming from Bitcoin Core or pre-RDTS Knots there is nothing to recover and the pass is a no-op.
+An RDTS-enforcing Bitcoin Knots install cannot switch to this flavor: no migration edge admits it, so StartOS refuses the switch rather than carry a datadir whose block verdicts were produced under rules Roots does not have.
 
 ## Actions
 
@@ -230,7 +229,7 @@ Roots' built-in wallet, surfaced as actions. All nine are grouped under **Wallet
 - **Select Wallet** decides which wallet every other action in the group operates on, and its description names the current selection. The default is the historical hardcoded wallet name, so an existing install is unchanged.
 - **Get Balance** and **Get Address** read; Get Balance lists the trusted, untrusted-pending and immature balances as separate copyable fields, and Get Address returns a new segwit address each time, copyable and as a QR code.
 - **Send Coins** and **Send All Coins** spend. Both are irreversible once broadcast.
-- **Sign Message** signs with one of the wallet's addresses. It, Send Coins and Send All Coins return the signature or transaction ID in a copyable field.
+- **Sign Message** signs with one of the wallet's legacy (`1…`) addresses; bitcoind's message signing does not support SegWit or Taproot, so an address from Get Address cannot be used and the form rejects one. It, Send Coins and Send All Coins return the signature or transaction ID in a copyable field.
 - **Backup wallet** writes the wallet to a file **so that StartOS's own backup captures it** — the wallet's live database is not otherwise in a backup-safe state. It asks for confirmation, because it overwrites that wallet's previous backup file. **Restore wallet** reads that file back, also after confirmation, and refuses if a wallet of that name still exists; and **Remove wallet** deletes the selected wallet from the node.
 
 ### Prioritize Transaction
@@ -253,31 +252,6 @@ One task, and it exists only to report a failure that happens after the action t
 | Download UTXO Snapshot | `important` | A snapshot download or load fails; the error is the task's reason | The action is run again |
 
 `important` rather than `critical`, deliberately: a node without a snapshot syncs normally, so nothing should be blocked. The task can return — a second failed attempt raises it again with the new error.
-
-**There is no RDTS opt-in task here.** Roots never enforces RDTS and has no option to; that task belongs to the RDTS-enforcing Knots flavor.
-
-## Chain-Split Recovery
-
-This section has no counterpart in the Bitcoin Core package. It exists because all bitcoind flavors share one data volume, and Roots is a flavor that never enforces RDTS.
-
-A flavor switch carries the previous binary's **persisted per-block validity verdicts** (`CBlockIndex::nStatus`, in `blocks/index/`) into the new one. bitcoind trusts them verbatim at startup — it never re-validates buried blocks under the new binary's rules, and the stored verdict does not record which rules produced it. So a `BLOCK_FAILED_VALID` mark that an RDTS-enforcing Knots build wrote would survive into Roots, which knows nothing about RDTS, cannot recognise the mark as foreign, and would therefore refuse the most-work chain it is supposed to follow. Clearing those marks is what the `chain-recovery` oneshot does.
-
-| Piece                                  | Role                                                                                                                        |
-| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `startos/forkRecovery.ts`              | `reconsiderInvalidTips` — `reconsiderblock` on each invalid chain tip, re-fetching tips every iteration                     |
-| `store.json` → `reconsiderInvalidTips` | The durable "work queued" flag, set by the `^#knots:29.3` migration edge and cleared when the pass completes                |
-| `store.json` → `rdtsEnforcedLastRun`   | Records the enforcement regime of the binary that last advanced this datadir. Roots always writes `false`                   |
-| `chain-recovery` oneshot (`main.ts`)   | Runs once per start as soon as RPC answers, `requires: ['bitcoind']`. Nothing depends on it, so it never blocks the service |
-
-Three properties worth knowing:
-
-- **It is a no-op when there is nothing to fix.** `getchaintips` reporting no invalid tip ends the pass immediately, so it costs one RPC call on an ordinary start.
-- **It self-heals.** `reconsiderblock` clears the failure flags and lets `ActivateBestChain` re-connect through full `ConnectBlock` validation; a branch that really is invalid under Roots' rules is simply re-marked on reconnection, and the node settles on the best remaining valid chain.
-- **An `undefined` `rdtsEnforcedLastRun` is treated as "may have enforced"** — a datadir last advanced by a package version predating the marker gets the pass rather than being assumed clean. The flag is written before the marker, so a crash between the two re-detects the transition instead of losing it.
-
-**Pruned nodes have a limit.** Reorganising onto a reconsidered branch means disconnecting the active chain down to the fork point; a pruned node that no longer stores blocks that far back would hit a fatal mid-reorg failure, so those tips are skipped and reported in a `Some Chains Not Recoverable` warning notification rather than attempted. Recovery for them is Reindex Blockchain, which on a pruned node means re-downloading. One hazard the guard cannot close: when a reconsidered branch's blocks must still be fetched from peers, the reorg happens later, and pruning may advance past the fork point in the interim.
-
-The oneshot posts a notification for each outcome — `Chain Verdicts Reset` (info, with the tip count), `Some Chains Not Recoverable` (warning), `Chain Recovery Failed` (error, retried next start). A stop mid-reorg leaves the flag set and is logged rather than reported as a failure.
 
 ## Health Checks
 
@@ -331,7 +305,7 @@ Both volumes are copied wholesale — `sdk.Backups.ofVolumes('main', 'i2pd')`. T
 7. **i2pd tuning is not in the StartOS UI.** Log level, bandwidth class, transit share, tunnel limits, and the web console are edited in `i2pd.conf` on the `i2pd` volume. The embedded router relays nothing for the I2P network (`notransit=true`); run the standalone i2pd service if you want to contribute transit capacity.
 8. **Shutdown is allowed five minutes** to flush the databases before SIGKILL.
 9. **There is no riscv64 build.** Upstream publishes Linux x86_64 and aarch64 tarballs only, so the manifest declares those two and the `Makefile` pins `ARCHES` to match. The Core and Knots flavors do build for riscv64; a Start9 server on that architecture cannot switch to this one.
-10. **This flavor never enforces RDTS**, and cannot be made to: the binary defines no `consensusrules` option. It follows the same chain as Bitcoin Core. See [Chain-Split Recovery](#chain-split-recovery) for what that means when switching in from the enforcing Knots build.
+10. **This flavor never enforces RDTS**, and cannot be made to: the binary defines no `consensusrules` option. It follows the same chain as Bitcoin Core, and an RDTS-enforcing Knots install cannot switch to it.
 11. **`softwareexpiry` is not supported.** Knots' shutdown deadline does not exist in Roots; an inherited value is deleted from `bitcoin.conf` on the next write.
 12. **The release is signed by one key, not a quorum.** See [Image and Container Runtime](#image-and-container-runtime) — the 1-of-1 quorum and the key's in-band-only publication are upstream's release model, and are the weakest link in this package's supply chain.
 13. **Every Wallet action disappears when `disablewallet` is on**, and all of them require the service to be running.
