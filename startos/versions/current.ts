@@ -42,18 +42,18 @@ const mempoolReset = {
 }
 
 export const current = VersionInfo.of({
-  version: '#roots:29.4:0',
+  version: '#roots:29.4:1',
   releaseNotes: {
     en_US:
-      'First release of the Bitcoin Roots flavor. Roots is Bitcoin Core with conservative relay and mempool policy preserved from Bitcoin Knots, and it does not enforce RDTS/BIP-110. Switching to it from Bitcoin Core or Bitcoin Knots (pre-RDTS) keeps your blockchain data and your dependent services; your mempool policy settings are reset to Roots defaults so the switch does not leave the other flavor’s policy in force.',
+      "Peers and ZMQ clients can now connect over the server's IPv6 addresses. Services that depend on Bitcoin can now connect to it without being able to read its data directory, including wallets.",
     es_ES:
-      'Primera versión de la variante Bitcoin Roots. Roots es Bitcoin Core con una política conservadora de retransmisión y mempool heredada de Bitcoin Knots, y no aplica RDTS/BIP-110. Cambiar a ella desde Bitcoin Core o Bitcoin Knots (pre-RDTS) conserva sus datos de la cadena de bloques y sus servicios dependientes; su configuración de política de mempool se restablece a los valores por defecto de Roots para que el cambio no deje en vigor la política de la otra variante.',
+      'Los pares y los clientes ZMQ ahora pueden conectarse a través de las direcciones IPv6 del servidor. Los servicios que dependen de Bitcoin ahora pueden conectarse a él sin poder leer su directorio de datos, incluidas las billeteras.',
     de_DE:
-      'Erste Veröffentlichung der Variante Bitcoin Roots. Roots ist Bitcoin Core mit konservativer Relay- und Mempool-Policy aus Bitcoin Knots und erzwingt RDTS/BIP-110 nicht. Ein Wechsel von Bitcoin Core oder Bitcoin Knots (pre-RDTS) behält Ihre Blockchain-Daten und Ihre abhängigen Dienste; Ihre Mempool-Policy-Einstellungen werden auf die Roots-Standardwerte zurückgesetzt, damit der Wechsel nicht die Policy der anderen Variante in Kraft lässt.',
+      'Peers und ZMQ-Clients können sich jetzt über die IPv6-Adressen des Servers verbinden. Dienste, die von Bitcoin abhängen, können sich jetzt damit verbinden, ohne sein Datenverzeichnis einschließlich der Wallets lesen zu können.',
     pl_PL:
-      'Pierwsze wydanie odmiany Bitcoin Roots. Roots to Bitcoin Core z konserwatywną polityką przekazywania i mempoola zachowaną z Bitcoin Knots; nie wymusza RDTS/BIP-110. Przejście na nią z Bitcoin Core lub Bitcoin Knots (pre-RDTS) zachowuje dane łańcucha bloków i usługi zależne; ustawienia polityki mempoola są resetowane do wartości domyślnych Roots, aby przejście nie pozostawiło w mocy polityki drugiej odmiany.',
+      'Peery i klienci ZMQ mogą teraz łączyć się przez adresy IPv6 serwera. Usługi zależne od Bitcoin mogą teraz łączyć się z nim bez możliwości odczytu jego katalogu danych, w tym portfeli.',
     fr_FR:
-      "Première version de la déclinaison Bitcoin Roots. Roots est Bitcoin Core avec une politique conservatrice de relais et de mempool préservée de Bitcoin Knots, et il n'applique pas RDTS/BIP-110. Y passer depuis Bitcoin Core ou Bitcoin Knots (pre-RDTS) conserve vos données de chaîne de blocs et vos services dépendants ; vos réglages de politique de mempool sont réinitialisés aux valeurs par défaut de Roots afin que le changement ne laisse pas en vigueur la politique de l'autre déclinaison.",
+      "Les pairs et les clients ZMQ peuvent désormais se connecter via les adresses IPv6 du serveur. Les services qui dépendent de Bitcoin peuvent désormais s'y connecter sans pouvoir lire son répertoire de données, portefeuilles compris.",
   },
   migrations: {
     up: async ({ effects }) => {},

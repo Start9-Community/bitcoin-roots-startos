@@ -10,7 +10,7 @@ export const manifest = setupManifest({
   upstreamRepo: 'https://github.com/LuganoPlanB/bitcoin-roots',
   marketingUrl: 'https://plan-b.foundation/bitcoin-roots/',
   description: { short, long },
-  volumes: ['main', 'i2pd'],
+  volumes: ['main', 'i2pd', 'public'],
   images: {
     bitcoind: {
       source: {
