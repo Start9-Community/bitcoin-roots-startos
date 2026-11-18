@@ -1166,7 +1166,7 @@ function formToFile(
     ...raw,
 
     // Enforced fields
-    rpccookiefile: '.cookie',
+    rpccookiefile,
     listen: true,
     bind: `0.0.0.0:${peerPortInternal}`,
     whitebind: `0.0.0.0:${peerPortLocal}`,
