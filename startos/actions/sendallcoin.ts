@@ -1,10 +1,13 @@
 import { bitcoinConfFile } from '../fileModels/bitcoin.conf'
 import { sdk } from '../sdk'
 import {
+  assertNonemptyWalletSendFee,
   ensureWalletLoaded,
   getSelectedWallet,
   rootDir,
   rpcArgs,
+  walletLabel,
+  walletSendFee,
 } from '../utils'
 import { i18n } from '../i18n'
 
@@ -23,14 +26,7 @@ const inputSpec = InputSpec.of({
       },
     ],
   })),
-  fee: Value.dynamicText(async ({ effects }) => ({
-    name: i18n('Fee'),
-    description: i18n(
-      'Fees in sat/vbytes you want to pay for the transaction.',
-    ),
-    required: true,
-    default: null,
-  })),
+  fee: walletSendFee,
 })
 
 export const sendAllCoin = sdk.Action.withInput(
@@ -44,7 +40,10 @@ export const sendAllCoin = sdk.Action.withInput(
     return {
       name: i18n('Send All Coins'),
       description: i18n('Send all coins to a Bitcoin address.'),
-      warning: null,
+      warning: i18n(
+        'Sends the entire balance of wallet ${wallet} on this node. A sent transaction cannot be reversed: check the address before you submit.',
+        { wallet: walletLabel(await getSelectedWallet(effects)) },
+      ),
       allowedStatuses: 'only-running',
       group: i18n('Wallet'),
       visibility: !conf?.raw?.disablewallet
@@ -62,6 +61,8 @@ export const sendAllCoin = sdk.Action.withInput(
   // execution function
   async ({ effects, input }) => {
     const { address, fee } = input
+
+    assertNonemptyWalletSendFee(fee)
 
     const mountpoint = '/scripts'
 
