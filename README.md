@@ -56,7 +56,7 @@ Read the trust basis before relying on it: upstream publishes that key **only as
 | `proxy-sub`    | `btc-rpc-proxy`         | while the node is pruned | Serves RPC on 8332 and fetches pruned blocks over p2p                                                                                                                                                                                      |
 | _temporaries_  | built locally, `python` | seconds to hours         | One per action that shells out — `assumeutxo`, `delete-peers`, `delete-txindex`, `delete-coinstats`, `getnetworkinfo`, `getblockchaininfo`, every Wallet-group action, and `rpc-auth-generator` (the `python` image, running `rpcauth.py`) |
 
-Three oneshots bracket the daemons. `nocow` sets the btrfs no-COW attribute across the data directory and must finish before `bitcoind` starts. `synced-true` runs after it, and is described under [Installation and First-Run Flow](#installation-and-first-run-flow). `publish-rpc` also runs each time `bitcoind` becomes ready, copying the cookie and the `prune` setting to the `public` volume for dependents.
+Three oneshots bracket the daemons. `nocow` sets the btrfs no-COW attribute on every directory and regular file in the data directory, skipping sockets, and must finish before `bitcoind` starts. `synced-true` runs after it, and is described under [Installation and First-Run Flow](#installation-and-first-run-flow). `publish-rpc` also runs each time `bitcoind` becomes ready, copying the cookie and the `prune` setting to the `public` volume for dependents.
 
 The i2pd image is declared `emulateMissing: true`, inherited from the sibling flavors. Since this package builds for x86_64 and aarch64 only — both of which i2pd publishes — nothing is emulated in practice.
 
@@ -142,19 +142,17 @@ Tor's SOCKS address is resolved over the service bridge with a fallback port, so
 
 ## Network Access and Interfaces
 
-Two interfaces always, two more when ZeroMQ is enabled, and one more when the I2P web console is. A sixth binding exists with no interface attached to it at all.
+Two interfaces always, and a third when the I2P web console is on. Two more hosts bind ports with no interface attached: `peer-local`, and, when ZeroMQ is enabled, `zmq`.
 
 | Interface          | Id            | Type | Port                   | Present                                         |
 | ------------------ | ------------- | ---- | ---------------------- | ----------------------------------------------- |
 | RPC                | `rpc`         | api  | 8332                   | always                                          |
 | Peer               | `peer`        | p2p  | 8333 (container 58333) | always                                          |
-| ZeroMQ Block       | `zmq-block`   | api  | 28332                  | when ZeroMQ is enabled                          |
-| ZeroMQ Transaction | `zmq-tx`      | api  | 28333                  | when ZeroMQ is enabled                          |
 | I2P Daemon Console | `i2p-console` | ui   | 7070                   | when `i2psam` is set and the i2pd console is on |
 
 **Legacy peer onions:** every init retires the old container-port 8333 binding on `peer` if it is still there, then asks Tor, through `tor-startos`'s `setupOnionReattachment`, to attach that host's retained addresses to container port 58333. It is an init step rather than a migration because an install whose data version is a range, which a flavor switch leaves behind, never runs a migration's `up()`. Their public onion port remains 8333. The request waits for a Tor release that supports reattachment and for the peer binding to be enabled. It never automatically moves an address from another host.
 
-Block and transaction notifications are two interfaces rather than one because bitcoind publishes them on separate ports, so a dependent that needs only one of them (LND, for instance) can resolve it independently.
+**`zmq` is bridge-only.** When ZeroMQ is enabled, bitcoind publishes `rawblock` and `hashblock` on container port 28332 and `rawtx`, `hashtx`, and `sequence` on 28333. ZeroMQ has no authentication, and those topics include the node's own transactions as it broadcasts them, so the `zmq` host binds both ports with no exported interface, which keeps them on loopback and the LXC bridge — never the LAN, never the internet. A dependent resolves each port on its own with `sdk.host.getBridgeAddress({ hostId: zmqHostId, internalPort: zmqPortBlock })` (or `zmqPortTransaction`); no `ssl` option, as for `peer-local`. An app running off the server cannot subscribe.
 
 **Port 8332 does not always belong to bitcoind.** Unpruned, bitcoind binds `0.0.0.0:8332` directly. Pruned, it binds `127.0.0.1:58332` and `btc-rpc-proxy` takes 8332 and forwards to it, additionally fetching blocks the node has pruned from the p2p network on demand and verifying them against their hash, merkle root, and witness commitment, and that no transaction repeats, before answering. The switch is automatic, and the interface, port, and credentials are identical either way.
 
@@ -171,7 +169,9 @@ There is no setup wizard, no credential to enter, and no task raised at install 
 5. **Every start** runs `nocow` before bitcoind.
 6. **When sync completes**, `synced-true` posts a Sync Complete notification and clears the two cache settings. It fires once per data directory; a reindex resets the flag, so it fires again when that finishes.
 
-A switch from **Bitcoin Core 28.x–31.x**, from **Bitcoin Knots (pre-RDTS)**, or from a `#knots` build that predates RDTS enforcement keeps the data directory and runs as an update — same package id, same `main` volume, so the chain data and every dependent survive it. The mempool policy keys are reset on every one of those edges so Roots' own defaults apply rather than the previous flavor's values; coming down from Core 30 the moved `coinstatsindex` is removed, and from Core 31 the newer-format `fee_estimates.dat` is removed too (an older binary hard-fails on it rather than ignoring it).
+A switch from **Bitcoin Core 28.x–32.x**, from **Bitcoin Knots (pre-RDTS)**, or from a `#knots` build that predates RDTS enforcement keeps the data directory and runs as an update — same package id, same `main` volume, so the chain data and every dependent survive it. The mempool policy keys are reset on every one of those edges so Roots' own defaults apply rather than the previous flavor's values; coming down from Core 30 the moved `coinstatsindex` is removed, and from Core 31 the newer-format `fee_estimates.dat` is removed too (an older binary hard-fails on it rather than ignoring it); Core 32 gets the Core 31 handling. A transaction index Core 32 kept is still read: Roots re-indexes the blocks Core 32 added, and one Core 32 rebuilt from scratch is rebuilt again. Core 32's smaller-format entries are never reclaimed, so after a switch from a Core 32 that rebuilt its index, **Delete Transaction Index** recovers that space at the cost of a full re-index.
+
+**Core 32 wallet limit:** a wallet that used Core 32's `addhdkey` RPC contains an `unused(...)` descriptor that Roots 29.4 cannot parse. The entire wallet fails to load, and an affected wallet configured to load at startup prevents the node from starting. Do not switch that wallet to Roots; keep it on Core 32. The migration does not check wallet descriptors or convert them. Keeping a backup preserves the data but does not make that wallet readable by Roots.
 
 An RDTS-enforcing Bitcoin Knots install cannot switch to this flavor: no migration edge admits it, so StartOS refuses the switch rather than carry a datadir whose block verdicts were produced under rules Roots does not have.
 
@@ -342,8 +342,7 @@ dependencies:
 interfaces:
   rpc: { type: api, port: 8332 }
   peer: { type: p2p, port: 8333 } # container 58333; 58334 is bridge-only, no interface
-  zmq-block: { type: api, port: 28332 } # only when ZeroMQ is enabled
-  zmq-tx: { type: api, port: 28333 } # only when ZeroMQ is enabled
+  # zmq: no interface; 28332 and 28333 bridge-only, bound only when ZeroMQ is enabled
   i2p-console: { type: ui, port: 7070 } # only when the i2pd web console is enabled
 actions:
   - mempool-config

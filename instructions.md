@@ -7,7 +7,7 @@
 
 ## What you get on StartOS
 
-- A full Bitcoin Roots node with three interfaces: **RPC Interface** (JSON-RPC for wallets and dependent services), **Peer Interface** (the network port other nodes connect to), and **ZeroMQ Interface** (block/transaction notifications, when ZMQ is enabled).
+- A full Bitcoin Roots node with two interfaces: **RPC Interface** (JSON-RPC for wallets and dependent services) and **Peer Interface** (the network port other nodes connect to). When ZMQ is enabled, it also streams block and transaction notifications to other services on your server; apps on other devices cannot subscribe.
 - An embedded **i2pd** sidecar that brings up I2P transport automatically — your node accepts inbound peers over I2P out of the box, with a separate **I2P Daemon Console** interface available when you turn the i2pd web console on.
 - An automatic Tor outbound proxy (your node reaches `.onion` peers without configuration); add a `.onion` to the Peer Interface to advertise yourself and accept inbound Tor connections too.
 - Disk-aware defaults: on disks smaller than 900 GB the package enables pruning and disables `txindex`; on larger disks you get a full archival node. The transition is transparent — pruned nodes route RPC through a small `btc-rpc-proxy` sidecar so port 8332 always serves RPC the same way, and it fetches any block your node has pruned from the peer-to-peer network on demand, so wallets and services see a node that behaves as though nothing were pruned.
@@ -26,7 +26,11 @@ Bitcoin Roots starts and begins Initial Block Download (IBD) immediately on inst
 
 ### If you are switching from Bitcoin Core or Bitcoin Knots (pre-RDTS)
 
-Nothing is re-synced and nothing needs reconfiguring — it is the same service with a different binary. **Your mempool policy settings are reset to Roots' defaults.** Roots and the flavor you came from do not share defaults even where they share setting names, so values carried over would quietly hold your node to the old flavor's policy. Anything you had customised under **Mempool Settings** needs setting again if you want it.
+**Before switching from Core 32:** do not switch if any of your wallets used Core 32's `addhdkey` RPC. Roots cannot load those wallets, and a wallet set to load at startup prevents the node from starting. Keep those wallets on Core 32. A backup of the same wallet cannot make it compatible with Roots.
+
+The blockchain is not re-synced — it is the same service with a different binary. **Your mempool policy settings are reset to Roots' defaults.** Roots and the flavor you came from do not share defaults even where they share setting names, so values carried over would quietly hold your node to the old flavor's policy. Anything you had customised under **Mempool Settings** needs setting again if you want it.
+
+Coming from Bitcoin Core 32 with a transaction index you rebuilt there, Roots rebuilds it again in its own format but does not free the space Core 32's copy used. Run **Delete Transaction Index** once to reclaim it; the index rebuilds from scratch on the next start.
 
 ## Using Bitcoin Roots
 
