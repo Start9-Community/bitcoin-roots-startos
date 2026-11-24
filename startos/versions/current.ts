@@ -1,5 +1,5 @@
-import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
-import { rm } from 'fs/promises'
+import { IMPOSSIBLE, T, VersionInfo } from '@start9labs/start-sdk'
+import { readFile, rm, writeFile } from 'fs/promises'
 import { bitcoinConfFile } from '../fileModels/bitcoin.conf'
 
 /**
@@ -41,6 +41,23 @@ const mempoolReset = {
   minrelaymaturity: undefined,
 }
 
+// Keys Core does not model and would carry over verbatim; Roots' writer always emits deprecatedrpc.
+const rootsOnlyKey =
+  /^(deprecatedrpc=create_bdb|blockmaxsize=|blockreconstructionextratxnsize=)/
+
+const toCore = async ({ effects }: { effects: T.Effects }) => {
+  await bitcoinConfFile.merge(effects, mempoolReset)
+  const path = '/media/startos/volumes/main/bitcoin.conf'
+  const conf = await readFile(path, 'utf8')
+  await writeFile(
+    path,
+    conf
+      .split('\n')
+      .filter((line) => !rootsOnlyKey.test(line))
+      .join('\n'),
+  )
+}
+
 export const current = VersionInfo.of({
   version: '#roots:29.4:5',
   releaseNotes: {
@@ -64,17 +81,13 @@ export const current = VersionInfo.of({
         up: async ({ effects }) => {
           await bitcoinConfFile.merge(effects, mempoolReset)
         },
-        down: async ({ effects }) => {
-          await bitcoinConfFile.merge(effects, mempoolReset)
-        },
+        down: toCore,
       },
       ['^29']: {
         up: async ({ effects }) => {
           await bitcoinConfFile.merge(effects, mempoolReset)
         },
-        down: async ({ effects }) => {
-          await bitcoinConfFile.merge(effects, mempoolReset)
-        },
+        down: toCore,
       },
       ['^30']: {
         up: async ({ effects }) => {
@@ -84,9 +97,7 @@ export const current = VersionInfo.of({
             force: true,
           }).catch(console.error)
         },
-        down: async ({ effects }) => {
-          await bitcoinConfFile.merge(effects, mempoolReset)
-        },
+        down: toCore,
       },
       // Core 32 wallets containing unused() descriptors require Core 32.
       // Core 32's txindex stays readable: 29.4 re-indexes from its own legacy locator.
@@ -101,9 +112,7 @@ export const current = VersionInfo.of({
             force: true,
           }).catch(console.error)
         },
-        down: async ({ effects }) => {
-          await bitcoinConfFile.merge(effects, mempoolReset)
-        },
+        down: toCore,
       },
       ['^#knotsprerdts:29.3']: {
         up: async ({ effects }) => {
