@@ -28,6 +28,8 @@ Bitcoin Roots starts and begins Initial Block Download (IBD) immediately on inst
 
 Nothing is re-synced and nothing needs reconfiguring — it is the same service with a different binary. **Your mempool policy settings are reset to Roots' defaults.** Roots and the flavor you came from do not share defaults even where they share setting names, so values carried over would quietly hold your node to the old flavor's policy. Anything you had customised under **Mempool Settings** needs setting again if you want it.
 
+Coming from Bitcoin Core 32 with a transaction index you rebuilt there, Roots rebuilds it again in its own format but does not free the space Core 32's copy used. Run **Delete Transaction Index** once to reclaim it; the index rebuilds from scratch on the next start.
+
 ## Using Bitcoin Roots
 
 ### RPC
