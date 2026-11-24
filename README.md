@@ -56,7 +56,7 @@ Read the trust basis before relying on it: upstream publishes that key **only as
 | `proxy-sub`    | `btc-rpc-proxy`         | while the node is pruned | Serves RPC on 8332 and fetches pruned blocks over p2p                                                                                                                                                                                      |
 | _temporaries_  | built locally, `python` | seconds to hours         | One per action that shells out — `assumeutxo`, `delete-peers`, `delete-txindex`, `delete-coinstats`, `getnetworkinfo`, `getblockchaininfo`, every Wallet-group action, and `rpc-auth-generator` (the `python` image, running `rpcauth.py`) |
 
-Three oneshots bracket the daemons. `nocow` sets the btrfs no-COW attribute across the data directory and must finish before `bitcoind` starts. `synced-true` runs after it, and is described under [Installation and First-Run Flow](#installation-and-first-run-flow). `publish-rpc` also runs each time `bitcoind` becomes ready, copying the cookie and the `prune` setting to the `public` volume for dependents.
+Three oneshots bracket the daemons. `nocow` sets the btrfs no-COW attribute on every directory and regular file in the data directory, skipping sockets, and must finish before `bitcoind` starts. `synced-true` runs after it, and is described under [Installation and First-Run Flow](#installation-and-first-run-flow). `publish-rpc` also runs each time `bitcoind` becomes ready, copying the cookie and the `prune` setting to the `public` volume for dependents.
 
 The i2pd image is declared `emulateMissing: true`, inherited from the sibling flavors. Since this package builds for x86_64 and aarch64 only — both of which i2pd publishes — nothing is emulated in practice.
 
