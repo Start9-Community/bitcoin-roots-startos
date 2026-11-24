@@ -26,7 +26,9 @@ Bitcoin Roots starts and begins Initial Block Download (IBD) immediately on inst
 
 ### If you are switching from Bitcoin Core or Bitcoin Knots (pre-RDTS)
 
-Nothing is re-synced and nothing needs reconfiguring — it is the same service with a different binary. **Your mempool policy settings are reset to Roots' defaults.** Roots and the flavor you came from do not share defaults even where they share setting names, so values carried over would quietly hold your node to the old flavor's policy. Anything you had customised under **Mempool Settings** needs setting again if you want it.
+**Before switching from Core 32:** do not switch if any of your wallets used Core 32's `addhdkey` RPC. Roots cannot load those wallets, and a wallet set to load at startup prevents the node from starting. Keep those wallets on Core 32. A backup of the same wallet cannot make it compatible with Roots.
+
+The blockchain is not re-synced — it is the same service with a different binary. **Your mempool policy settings are reset to Roots' defaults.** Roots and the flavor you came from do not share defaults even where they share setting names, so values carried over would quietly hold your node to the old flavor's policy. Anything you had customised under **Mempool Settings** needs setting again if you want it.
 
 Coming from Bitcoin Core 32 with a transaction index you rebuilt there, Roots rebuilds it again in its own format but does not free the space Core 32's copy used. Run **Delete Transaction Index** once to reclaim it; the index rebuilds from scratch on the next start.
 

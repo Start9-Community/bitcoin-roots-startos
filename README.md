@@ -171,6 +171,8 @@ There is no setup wizard, no credential to enter, and no task raised at install 
 
 A switch from **Bitcoin Core 28.x–32.x**, from **Bitcoin Knots (pre-RDTS)**, or from a `#knots` build that predates RDTS enforcement keeps the data directory and runs as an update — same package id, same `main` volume, so the chain data and every dependent survive it. The mempool policy keys are reset on every one of those edges so Roots' own defaults apply rather than the previous flavor's values; coming down from Core 30 the moved `coinstatsindex` is removed, and from Core 31 the newer-format `fee_estimates.dat` is removed too (an older binary hard-fails on it rather than ignoring it); Core 32 gets the Core 31 handling. A transaction index Core 32 kept is still read: Roots re-indexes the blocks Core 32 added, and one Core 32 rebuilt from scratch is rebuilt again. Core 32's smaller-format entries are never reclaimed, so after a switch from a Core 32 that rebuilt its index, **Delete Transaction Index** recovers that space at the cost of a full re-index.
 
+**Core 32 wallet limit:** a wallet that used Core 32's `addhdkey` RPC contains an `unused(...)` descriptor that Roots 29.4 cannot parse. The entire wallet fails to load, and an affected wallet configured to load at startup prevents the node from starting. Do not switch that wallet to Roots; keep it on Core 32. The migration does not check wallet descriptors or convert them. Keeping a backup preserves the data but does not make that wallet readable by Roots.
+
 An RDTS-enforcing Bitcoin Knots install cannot switch to this flavor: no migration edge admits it, so StartOS refuses the switch rather than carry a datadir whose block verdicts were produced under rules Roots does not have.
 
 ## Actions
