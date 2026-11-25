@@ -1,6 +1,7 @@
 import { IMPOSSIBLE, T, VersionInfo } from '@start9labs/start-sdk'
 import { readFile, rm, writeFile } from 'fs/promises'
 import { bitcoinConfFile } from '../fileModels/bitcoin.conf'
+import { clearPeerOnionTarget } from '../utils'
 
 /**
  * Reset all mempool settings to undefined so the new flavor's upstream
@@ -56,6 +57,7 @@ const toCore = async ({ effects }: { effects: T.Effects }) => {
       .filter((line) => !rootsOnlyKey.test(line))
       .join('\n'),
   )
+  await clearPeerOnionTarget(effects)
 }
 
 export const current = VersionInfo.of({
@@ -120,6 +122,7 @@ export const current = VersionInfo.of({
         },
         down: async ({ effects }) => {
           await bitcoinConfFile.merge(effects, mempoolReset)
+          await clearPeerOnionTarget(effects)
         },
       },
       // #knots through :7 ran Knots 29.3.knots20260210 or earlier; :8 is the first RDTS build.

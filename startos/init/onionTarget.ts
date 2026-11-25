@@ -1,11 +1,8 @@
 import { setupOnionTarget } from 'tor-startos/startos/utils/target'
-import { manifest } from '../manifest'
 import { sdk } from '../sdk'
-import { peerHostId, peerPortInternal, peerPortOnion } from '../utils'
+import { peerOnionBinding, peerPortOnion } from '../utils'
 
 export const onionTarget = setupOnionTarget(sdk, {
-  packageId: manifest.id,
-  hostId: peerHostId,
-  internalPort: peerPortInternal,
+  ...peerOnionBinding,
   target: peerPortOnion,
 })

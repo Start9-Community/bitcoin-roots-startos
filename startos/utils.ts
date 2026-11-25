@@ -1,4 +1,6 @@
 import { T } from '@start9labs/start-sdk'
+import { clearOnionTarget } from 'tor-startos/startos/utils/target'
+import { manifest } from './manifest'
 import { storeJson } from './fileModels/store.json'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
@@ -39,6 +41,16 @@ export const peerPortLocal = 58334
 export const peerPortOnion = 58335
 /** Port bitcoind binds `=onion` on loopback, where Core expects its Tor peers to arrive from. */
 export const peerPortOnionLoopback = 58336
+
+export const peerOnionBinding = {
+  packageId: manifest.id,
+  hostId: peerHostId,
+  internalPort: peerPortInternal,
+}
+
+/** Outgoing flavor migrations clear Tor's persisted target. */
+export const clearPeerOnionTarget = (effects: T.Effects) =>
+  clearOnionTarget(sdk, effects, peerOnionBinding)
 
 export const rpcPort = 8332
 export const rpcPortPruned = 58332
