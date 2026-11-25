@@ -15,6 +15,8 @@ import {
   GetBlockchainInfo,
   i2pControlPort,
   peerPortInternal,
+  peerPortOnion,
+  peerPortOnionLoopback,
   rootDir,
   rpccookiefile,
   rpcPort,
@@ -133,10 +135,13 @@ export const main = sdk.setupMain(async ({ effects }) => {
     return { cancel: false }
   })
 
-  // The ini writer quotes a value starting with `[`, which bitcoind does not unquote.
+  // The ini writer quotes a value starting with `[`, which bitcoind does not
+  // unquote. bitcoind merges these binds with bitcoin.conf's IPv4 one.
   const bitcoinArgs: string[] = [
     `-onion=${torSocks}`,
+    '-listenonion=0',
     `-bind=[::]:${peerPortInternal}`,
+    `-bind=127.0.0.1:${peerPortOnionLoopback}=onion`,
   ]
 
   if (reindexBlockchain) {
@@ -287,6 +292,26 @@ export const main = sdk.setupMain(async ({ effects }) => {
         },
       },
       requires: ['nocow'],
+    })
+    // Onion peers reach bitcoind from 127.0.0.1, the one source Core never discourages as a whole.
+    .addDaemon('onion-relay', {
+      subcontainer: bitcoindSub,
+      exec: {
+        command: [
+          'socat',
+          `TCP-LISTEN:${peerPortOnion},fork,reuseaddr`,
+          `TCP:127.0.0.1:${peerPortOnionLoopback}`,
+        ],
+      },
+      ready: {
+        display: null,
+        fn: () =>
+          sdk.healthCheck.checkPortListening(effects, peerPortOnion, {
+            successMessage: 'Onion relay is listening',
+            errorMessage: 'Onion relay is not listening',
+          }),
+      },
+      requires: [],
     })
     .addOneshot('publish-rpc', {
       subcontainer: null,

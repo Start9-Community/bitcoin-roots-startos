@@ -97,7 +97,7 @@ ENV PATH=${BITCOIN_PREFIX}/bin:$PATH
 # curl is load-bearing: the assumeutxo action shells out to it in this image.
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        ca-certificates curl e2fsprogs jq yq && \
+        ca-certificates curl e2fsprogs jq socat yq && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /build/bin/bitcoind ${BITCOIN_PREFIX}/bin/

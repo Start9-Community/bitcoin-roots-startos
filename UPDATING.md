@@ -29,12 +29,12 @@ A wrong `VERSION` is a 404, not a silently wrong binary.
    (`consensusrules`, `softwareexpiry`) and both are declared must-be-absent
    on purpose. An option that disappears without being moved to that group
    leaves a dead form field; one that appears is a feature the package does
-   not expose yet. Note that Roots only *warns* on unknown config values
+   not expose yet. Note that Roots only _warns_ on unknown config values
    (verified at `29.4-roots.4`), so neither case fails loudly at runtime.
 4. **If the Core base major changes, the migration edges change with it.** The
    `other` edges in `startos/versions/current.ts` are written for a 29-based
    binary: `^30` strips the moved `coinstatsindex` and `^31` additionally
-   strips `fee_estimates.dat`, because coming *down* from those majors is a
+   strips `fee_estimates.dat`, because coming _down_ from those majors is a
    backwards data-format move. On a Roots 30.x or 31.x base those cleanups
    belong on different edges, or on none.
 5. **A 31.x base also ships `libexec/bitcoin-node`** (Core's IPC binary),

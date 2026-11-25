@@ -59,18 +59,18 @@ const toCore = async ({ effects }: { effects: T.Effects }) => {
 }
 
 export const current = VersionInfo.of({
-  version: '#roots:29.4:5',
+  version: '#roots:29.4:6',
   releaseNotes: {
     en_US:
-      'Requires StartOS 0.4.2 or later. ZeroMQ notifications are now reachable only by other services on this server, no longer from your local network: the ZeroMQ Block and ZeroMQ Transaction interfaces are removed, and services that use ZeroMQ, such as LND, are unaffected. Switching chain data from Bitcoin Core 32.x is now supported. Do not switch a wallet that used the Core 32 addhdkey RPC: Roots cannot load that wallet; keep it on Core 32. Fixes memory use growing while the service runs.',
+      'Peers that connect through your .onion address learn only that address, never your public IP address, and a misbehaving one is disconnected without affecting your other onion peers. Requires Tor 0.4.9.17:4 or later.',
     es_ES:
-      'Requiere StartOS 0.4.2 o posterior. Las notificaciones ZeroMQ ahora solo son accesibles para otros servicios de este servidor, ya no desde su red local: se eliminan las interfaces Bloque ZeroMQ y Transacción ZeroMQ, y los servicios que usan ZeroMQ, como LND, no se ven afectados. Ahora se admite el cambio de los datos de la cadena desde Bitcoin Core 32.x. No cambie una cartera que haya usado el RPC addhdkey de Core 32: Roots no puede cargarla; manténgala en Core 32. Corrige el aumento del uso de memoria mientras el servicio está en ejecución.',
+      'Los pares que se conectan a través de su dirección .onion solo conocen esa dirección, nunca su dirección IP pública, y uno que se comporte mal se desconecta sin afectar a sus demás pares onion. Requiere Tor 0.4.9.17:4 o posterior.',
     de_DE:
-      'Erfordert StartOS 0.4.2 oder neuer. ZeroMQ-Benachrichtigungen sind jetzt nur noch für andere Dienste auf diesem Server erreichbar, nicht mehr aus Ihrem lokalen Netzwerk: Die Schnittstellen ZeroMQ-Block und ZeroMQ-Transaktion wurden entfernt, und Dienste, die ZeroMQ nutzen, etwa LND, sind nicht betroffen. Die Übernahme der Blockchain-Daten von Bitcoin Core 32.x wird jetzt unterstützt. Wallets, die den RPC addhdkey von Core 32 verwendet haben, dürfen nicht gewechselt werden: Roots kann sie nicht laden; diese Wallets müssen auf Core 32 bleiben. Behebt einen während der Laufzeit des Dienstes ansteigenden Speicherverbrauch.',
+      'Peers, die sich über Ihre .onion-Adresse verbinden, erfahren nur diese Adresse, nie Ihre öffentliche IP-Adresse, und ein Peer, der sich fehlverhält, wird getrennt, ohne Ihre anderen Onion-Peers zu beeinträchtigen. Erfordert Tor 0.4.9.17:4 oder neuer.',
     pl_PL:
-      'Wymaga StartOS 0.4.2 lub nowszego. Powiadomienia ZeroMQ są teraz dostępne tylko dla innych usług na tym serwerze, a nie z sieci lokalnej: usunięto interfejsy Blok ZeroMQ i Transakcja ZeroMQ, a usługi korzystające z ZeroMQ, takie jak LND, działają bez zmian. Przeniesienie danych łańcucha z Bitcoin Core 32.x jest teraz obsługiwane. Nie przenoś portfela, który używał RPC addhdkey z Core 32: Roots nie może go załadować; pozostaw go na Core 32. Naprawia wzrost zużycia pamięci podczas działania usługi.',
+      'Węzły łączące się przez Twój adres .onion poznają tylko ten adres, nigdy Twojego publicznego adresu IP, a węzeł, który źle się zachowuje, zostaje rozłączony bez wpływu na pozostałe węzły onion. Wymaga Tor 0.4.9.17:4 lub nowszego.',
     fr_FR:
-      "Nécessite StartOS 0.4.2 ou une version ultérieure. Les notifications ZeroMQ ne sont désormais accessibles qu'aux autres services de ce serveur, et non plus depuis votre réseau local : les interfaces Bloc ZeroMQ et Transaction ZeroMQ sont supprimées, et les services qui utilisent ZeroMQ, comme LND, ne sont pas affectés. Le transfert des données de la chaîne depuis Bitcoin Core 32.x est désormais pris en charge. Ne transférez pas un portefeuille ayant utilisé le RPC addhdkey de Core 32 : Roots ne peut pas le charger ; conservez-le sur Core 32. Corrige l'augmentation de la consommation de mémoire pendant le fonctionnement du service.",
+      'Les pairs qui se connectent via votre adresse .onion ne connaissent que cette adresse, jamais votre adresse IP publique, et un pair au comportement abusif est déconnecté sans affecter vos autres pairs onion. Nécessite Tor 0.4.9.17:4 ou une version ultérieure.',
   },
   migrations: {
     up: async ({ effects }) => {},
