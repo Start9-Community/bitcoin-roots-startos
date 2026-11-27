@@ -336,6 +336,8 @@ export default {
     1758: 'Usar PCP o NAT-PMP para mapear el puerto de escucha.',
     1759: 'Objetivo máximo de subida',
     1760: "Intenta mantener el tráfico saliente por debajo del objetivo indicado en MiB cada 24 h. El límite no se aplica a los pares con el permiso 'download' ni a los bloques creados en la última semana. 0 = sin límite.",
+    1761: 'Peso reservado del bloque',
+    1762: 'Peso de bloque que las plantillas de bloque dejan libre para la transacción coinbase. El software de minería que construye una coinbase grande, como un pool que paga a muchas salidas, necesita más que el valor predeterminado.',
     // Wallet actions
     1900: 'Obtener saldo',
     1901: 'Obtener el saldo de su billetera Bitcoin.',
@@ -764,6 +766,8 @@ export default {
     1758: 'PCP oder NAT-PMP verwenden, um den Listening-Port weiterzuleiten.',
     1759: 'Maximales Upload-Ziel',
     1760: "Versucht, den ausgehenden Datenverkehr unter dem angegebenen Ziel in MiB pro 24 h zu halten. Das Limit gilt nicht für Peers mit der Berechtigung 'download' oder für Blöcke, die innerhalb der letzten Woche erstellt wurden. 0 = kein Limit.",
+    1761: 'Reserviertes Blockgewicht',
+    1762: 'Blockgewicht, das Blockvorlagen für die Coinbase-Transaktion freihalten. Mining-Software, die eine große Coinbase erstellt, etwa ein Pool, der an viele Ausgaben auszahlt, benötigt mehr als den Standardwert.',
     // Wallet actions
     1900: 'Guthaben abrufen',
     1901: 'Das Guthaben Ihrer Bitcoin-Wallet abrufen.',
@@ -1192,6 +1196,8 @@ export default {
     1758: 'Użyj PCP lub NAT-PMP do mapowania portu nasłuchującego.',
     1759: 'Maksymalny limit wysyłania',
     1760: "Stara się utrzymać ruch wychodzący poniżej podanego celu w MiB na 24 h. Limit nie dotyczy peerów z uprawnieniem 'download' ani bloków utworzonych w ciągu ostatniego tygodnia. 0 = brak limitu.",
+    1761: 'Zarezerwowana waga bloku',
+    1762: 'Waga bloku, którą szablony bloków pozostawiają wolną dla transakcji coinbase. Oprogramowanie wydobywcze tworzące dużą transakcję coinbase, na przykład pula wypłacająca na wiele wyjść, potrzebuje więcej niż wartość domyślna.',
     // Wallet actions
     1900: 'Pobierz saldo',
     1901: 'Pobierz saldo Twojego portfela Bitcoin.',
@@ -1620,6 +1626,8 @@ export default {
     1758: "Utiliser PCP ou NAT-PMP pour mapper le port d'écoute.",
     1759: "Objectif maximal d'envoi",
     1760: "Tente de maintenir le trafic sortant sous l'objectif donné, en MiB par 24 h. La limite ne s'applique pas aux pairs disposant de la permission 'download' ni aux blocs créés au cours de la dernière semaine. 0 = aucune limite.",
+    1761: 'Poids de bloc réservé',
+    1762: 'Poids de bloc que les modèles de bloc laissent libre pour la transaction coinbase. Un logiciel de minage qui construit une coinbase volumineuse, comme un pool qui paie de nombreuses sorties, a besoin de plus que la valeur par défaut.',
     // Wallet actions
     1900: 'Obtenir le solde',
     1901: 'Obtenir le solde de votre portefeuille Bitcoin.',

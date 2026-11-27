@@ -158,6 +158,7 @@ export const shape = z.looseObject({
   // Block Template & Reconstruction
   blockmaxsize: iniNumber,
   blockmaxweight: iniNumber,
+  blockreservedweight: iniNumber,
   blockreconstructionextratxn: iniNumber,
   blockreconstructionextratxnsize: iniNumber,
 
@@ -553,6 +554,20 @@ export const fullConfigSpec = sdk.InputSpec.of({
     description: i18n(
       'A shell command Bitcoin runs inside its container each time the best block changes. %s in the command is replaced by the block hash.',
     ),
+  }),
+  // Must remain top-level for cross-flavor autoconfig tasks.
+  blockreservedweight: Value.number({
+    name: i18n('Block Reserved Weight'),
+    description: i18n(
+      'Block weight that block templates leave free for the coinbase transaction. Mining software that builds a large coinbase, such as a pool paying many outputs, needs more than the default.',
+    ),
+    required: false,
+    default: null,
+    min: 2_000,
+    max: 4_000_000,
+    integer: true,
+    units: 'WU',
+    footnote: `${i18n('Default')}: 8000 WU`,
   }),
   templateconstruction: Value.object(
     {
@@ -953,6 +968,7 @@ function fileToForm(
     avoidpartialspends,
     discardfee,
     blocknotify,
+    blockreservedweight,
     prune,
     dbcache,
     dbbatchsize,
@@ -1029,6 +1045,7 @@ function fileToForm(
       discardfee,
     },
     blocknotify,
+    blockreservedweight,
     templateconstruction: {
       blockmaxsize,
       blockmaxweight,
@@ -1124,6 +1141,7 @@ function formToFile(
     peerbloomfilters,
     blockfilters,
     blocknotify,
+    blockreservedweight,
     dbcache,
     dbbatchsize,
     zmqEnabled,
@@ -1229,6 +1247,7 @@ function formToFile(
           ? 'basic'
           : false,
     blocknotify: blocknotify || undefined,
+    blockreservedweight: blockreservedweight ?? undefined,
     prune: prune ?? 0,
     dbcache: dbcache ?? undefined,
     dbbatchsize: dbbatchsize ?? undefined,
