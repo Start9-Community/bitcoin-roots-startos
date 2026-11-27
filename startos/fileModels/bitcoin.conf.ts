@@ -555,6 +555,7 @@ export const fullConfigSpec = sdk.InputSpec.of({
       'A shell command Bitcoin runs inside its container each time the best block changes. %s in the command is replaced by the block hash.',
     ),
   }),
+  // Must remain top-level for cross-flavor autoconfig tasks.
   blockreservedweight: Value.number({
     name: i18n('Block Reserved Weight'),
     description: i18n(
